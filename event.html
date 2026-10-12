@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活動詳情｜TO PRO 桃園鐵人三項俱樂部</title>
+<meta name="description" content="TO PRO 桃園鐵人三項俱樂部｜活動詳情">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/linkinbio.css">
+</head>
+<body class="lib-body">
+
+<div class="lib-card event-card">
+  <a href="linkinbio.html" class="event-back">‹ 返回 TO PRO 連結總覽</a>
+
+  <div class="event-eyebrow" id="eventGroup">團練行事曆</div>
+  <h1 class="event-title" id="eventTitle">TO PRO 活動</h1>
+
+  <div class="event-meta">
+    <div class="event-meta-row">
+      <span class="event-meta-label">日期</span>
+      <span class="event-meta-value" id="eventDate">—</span>
+    </div>
+    <div class="event-meta-row">
+      <span class="event-meta-label">時間</span>
+      <span class="event-meta-value" id="eventTime">—</span>
+    </div>
+    <div class="event-meta-row">
+      <span class="event-meta-label">地點</span>
+      <span class="event-meta-value" id="eventLocation">—</span>
+    </div>
+  </div>
+
+  <p class="event-note">詳細集合資訊、報名或參加方式，請洽 TO PRO LINE 官方帳號，我們會盡快回覆您！</p>
+
+  <a class="btn btn-primary event-cta" href="https://lin.ee/U78PTTR" target="_blank" rel="noopener">加入 LINE 詢問</a>
+</div>
+
+<script>
+  var params = new URLSearchParams(window.location.search);
+  var title = params.get('title') || 'TO PRO 活動';
+  var dateStr = params.get('date') || '';
+  var time = params.get('time') || '';
+  var location = params.get('location') || '';
+  var group = params.get('group') === 'monthly' ? '當月活動' : '團練行事曆';
+
+  function formatFullDate(str) {
+    if (!str) return '—';
+    var d = new Date(str + 'T00:00:00');
+    if (isNaN(d.getTime())) return str;
+    var weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
+    return d.getFullYear() + ' 年 ' + (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日（' + weekdayNames[d.getDay()] + '）';
+  }
+
+  document.title = title + '｜TO PRO 桃園鐵人三項俱樂部';
+  document.getElementById('eventGroup').textContent = group;
+  document.getElementById('eventTitle').textContent = title;
+  document.getElementById('eventDate').textContent = formatFullDate(dateStr);
+  document.getElementById('eventTime').textContent = time || '—';
+  document.getElementById('eventLocation').textContent = location || '—';
+</script>
+
+</body>
+</html>

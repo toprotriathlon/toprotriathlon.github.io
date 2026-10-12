@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聯絡我們｜TO PRO 桃園鐵人三項俱樂部</title>
+<meta name="description" content="聯絡 TO PRO 桃園鐵人三項俱樂部，加入我們的游泳、單車、跑步訓練社群。">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo">TO<span>PRO</span><small>桃園鐵人三項俱樂部</small></a>
+    <nav class="nav-links">
+      <a href="index.html">首頁</a>
+      <a href="about.html">關於我們</a>
+      <a href="programs.html">課程項目</a>
+      <a href="team.html">教練介紹</a>
+      <a href="contact.html" class="active">聯絡我們</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="contact.html" class="btn btn-primary">立即加入</a>
+      <button class="nav-toggle" aria-label="開啟選單">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">聯絡我們</span>
+    <h1>不要再一個人練了，加入我們</h1>
+    <p>不論是想了解課程、評估訓練狀況，還是單純想來感受一次團練，歡迎留言給我們。</p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="edit-note reveal">
+      ✏️ 提醒：表單目前會開啟您的信箱寄出訊息，請至 js/main.js 將 your-email@example.com 換成實際收件信箱；社群連結（IG / LINE / Threads）與地圖位置也請一併替換。
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <div class="info-block">
+          <h3>社群 / 聯絡方式</h3>
+          <p>Instagram：@topro.triathlon<br>LINE 官方帳號：請替換為實際連結<br>Threads：@topro.triathlon<br>Email：your-email@example.com</p>
+          <div class="social-row">
+            <a href="#" aria-label="Instagram" title="請替換為 IG 連結">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+            </a>
+            <a href="#" aria-label="LINE" title="請替換為 LINE 連結">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="6"/><path d="M8 18l-1 3 3-2"/></svg>
+            </a>
+            <a href="#" aria-label="Threads" title="請替換為 Threads 連結">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c5 0 8 3 8 8.5S17 21 12 21s-8-3-8-9.5S7 3 12 3z"/><path d="M9 12c0-2 1.3-3 3-3s3 1 3 2.6c0 2.4-2.5 2.4-3 3.4"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="info-block">
+          <h3>訓練地點</h3>
+          <p>桃園市｜依課程安排公告訓練地點（如三民運動公園、蘆興景觀埤塘生態公園、基五號水門等），實際地點以 LINE 群組通知為準。</p>
+        </div>
+
+        <div class="info-block">
+          <h3>常見問題</h3>
+          <p>可以插班嗎？可以，需由教練評估是否合適。如需請假，恕無法提供補課，敬請見諒。</p>
+        </div>
+
+        <div class="map-wrap">
+          <iframe
+            src="https://www.google.com/maps?q=%E6%A1%83%E5%9C%92%E5%B8%82&output=embed"
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade"
+            title="TO PRO 訓練地點地圖（請替換為實際地點）"></iframe>
+        </div>
+      </div>
+
+      <div class="reveal">
+        <div class="form-card">
+          <h3 style="margin-bottom:22px;">留言 / 報名諮詢</h3>
+          <form id="contact-form">
+            <div class="form-two">
+              <div class="form-row">
+                <label for="name">姓名</label>
+                <input type="text" id="name" name="name" required>
+              </div>
+              <div class="form-row">
+                <label for="email">Email 信箱</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label for="interest">有興趣的項目</label>
+              <select id="interest" name="interest">
+                <option>游泳訓練營</option>
+                <option>跑步訓練計劃</option>
+                <option>單車專項團練</option>
+                <option>一對一客製課程</option>
+                <option>線上訓練課表</option>
+                <option>還在考慮，想先了解</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label for="message">想讓教練知道的事情</label>
+              <textarea id="message" name="message" placeholder="例如：目前的訓練經驗、賽事目標、方便的訓練時間..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">送出訊息</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <a href="index.html" class="logo">TO<span>PRO</span></a>
+        <p>桃園鐵人三項俱樂部，為熱愛三鐵而聚。游泳・單車・跑步，一起變得更強。</p>
+        <div class="social-row">
+          <a href="#" aria-label="Instagram" title="請替換為 IG 連結">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+          </a>
+          <a href="#" aria-label="LINE" title="請替換為 LINE 連結">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="6"/><path d="M8 18l-1 3 3-2"/></svg>
+          </a>
+          <a href="#" aria-label="Threads" title="請替換為 Threads 連結">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c5 0 8 3 8 8.5S17 21 12 21s-8-3-8-9.5S7 3 12 3z"/><path d="M9 12c0-2 1.3-3 3-3s3 1 3 2.6c0 2.4-2.5 2.4-3 3.4"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>快速連結</h4>
+        <ul>
+          <li><a href="about.html">關於我們</a></li>
+          <li><a href="programs.html">課程項目</a></li>
+          <li><a href="team.html">教練介紹</a></li>
+          <li><a href="contact.html">聯絡我們</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>聯絡資訊</h4>
+        <ul>
+          <li>桃園市｜訓練地點依課程公告</li>
+          <li>your-email@example.com</li>
+          <li>@topro.triathlon</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 TO PRO 桃園鐵人三項俱樂部. All rights reserved.</span>
+      <span>Designed for TO PRO</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

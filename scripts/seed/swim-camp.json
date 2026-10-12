@@ -1,0 +1,175 @@
+{
+  "_comment": "Seed data for pages/swim-camp, transcribed from the original swim-camp.html. Two intentional simplifications vs the original markup, both content-preserving: (1) paragraphs use **bold** markdown for the few <strong> spans in the original — the block renderer converts this to <strong>; (2) the two decorative '請上傳圖檔' image placeholders that were duplicated INSIDE the Step-2 single-class form (they repeated the already-editable 七月課表 image block above) were dropped in favor of the group's `note` field, since a registration-form step isn't modeled to hold arbitrary marketing content blocks — only form fields. Nothing else was changed or reworded.",
+
+  "slug": "swim-camp",
+  "title": "夏季游泳訓練營",
+  "metaDescription": "TO PRO 夏季游泳訓練營，自由選課制，現正開放報名。",
+  "status": "draft",
+
+  "header": {
+    "eyebrow": "TO PRO 2026",
+    "title": "夏季游泳訓練營",
+    "quote": "⎝ Hi 歡迎加入 TO PRO 鐵人三項俱樂部 ⎠"
+  },
+
+  "blocks": [
+    { "id": "b1", "type": "richtext", "paragraphs": [
+      "其實你知道嗎？游泳，是最難靠「狂練」就進步的運動之一——因為真正能讓游泳進步的關鍵，是「對的游泳技巧」！",
+      "**TO PRO 首推！2026 夏季游泳訓練營**"
+    ]},
+
+    { "id": "b2", "type": "list", "variant": "arrow", "items": [
+      "提升自由式技巧與效率",
+      "建立更穩定的游泳能力",
+      "改善換氣、平衡與流線",
+      "準備人生第一場鐵人賽事",
+      "已經比過很多場鐵人，卻卡在游泳無法突破"
+    ]},
+
+    { "id": "b3", "type": "tags", "text": "自由選課 × 課程多元 × 泳姿調整 × 泳速提升 × 自由式 × 蛙式" },
+
+    { "id": "b4", "type": "richtext", "paragraphs": [
+      "歡迎加入我們的夏季游泳訓練營！非常難得的自由選課制游泳訓練營，讓你自由選擇適合自己的課程與程度，找到最適合你的游泳訓練節奏！"
+    ]},
+
+    { "id": "b5", "type": "list", "variant": "arrow", "heading": "課程亮點", "items": [
+      "**自由選課制：**可依照自身需求、程度與時間自由安排課程，不需固定綁定同一時段上課",
+      "**成人游泳訓練：**專為成人設計之游泳課程，從基礎建立到能力進階，循序提升游泳能力",
+      "**能力分級訓練：**依照學員程度與訓練目標安排適合班別，提供更穩定且有效率的訓練內容",
+      "**專項教練指導：**由資深游泳教練與三鐵教練共同規劃課程，結合泳技訓練、體能概念與實戰經驗",
+      "**鐵人專項游泳：**結合三鐵實戰經驗與開放水域訓練概念，協助學員建立更穩定的耐力與比賽能力",
+      "**團課制度：**採小班制團體訓練，保有教練即時調整與回饋，也能在友善的團練氛圍中一起訓練、一起進步"
+    ]},
+
+    { "id": "b6", "type": "list", "variant": "check", "heading": "✦ 我們的課程適合誰？", "items": [
+      "有游泳基礎，想游得更快、更順",
+      "游泳容易喘、容易累",
+      "想提升自由式／蛙式技巧",
+      "想突破目前的游泳瓶頸",
+      "正在準備鐵人三項賽事",
+      "想培養固定游泳習慣",
+      "想自由安排上課時間"
+    ]},
+
+    { "id": "b7", "type": "list", "variant": "star", "heading": "課程資訊", "items": [
+      "課程期間｜六月、七月、八月",
+      "課程內容｜自由式／蛙式／鐵人游泳訓練",
+      "課程難度｜每堂課皆有標註難度",
+      "加入門檻｜此課程針對成人，且需可連續游完自由式或蛙式 50 公尺",
+      "開課限制｜每堂課 3 人即開班，8 人滿班"
+    ]},
+
+    { "id": "b8", "type": "note", "text": "每堂課包含現場泳姿調整、狀況處理排除。本課程採自由選課制，可依照自己的程度與時間，自由選擇適合自己的班別與訓練內容！" },
+
+    { "id": "b9", "type": "heading", "text": "七月課表（每堂課上課時間皆為 1 小時）" },
+    { "id": "b10", "type": "image", "url": "", "alt": "七月課表", "caption": "每月月中將公布下個月份課程內容與上課時段" },
+
+    { "id": "b11", "type": "heading", "text": "⎯ 自由選課制說明 ⎯" },
+    { "id": "b12", "type": "image", "url": "", "alt": "自由選課制說明", "caption": "" },
+
+    { "id": "b13", "type": "heading", "text": "⎯ 教練團隊 ⎯" },
+    { "id": "b14", "type": "image", "url": "", "alt": "教練團隊", "caption": "" },
+
+    { "id": "b15", "type": "pricing", "heading": "課程收費", "cards": [
+      { "id": "pc1", "title": "單堂課程", "price": "$750", "priceSuffix": "／堂", "perk": "", "featured": false },
+      { "id": "pc2", "title": "5 堂課程套餐", "price": "$3,500", "priceSuffix": "", "perk": "贈送 TO PRO 專屬泳帽 1 頂", "featured": true },
+      { "id": "pc3", "title": "10 堂課程套餐", "price": "$6,000", "priceSuffix": "", "perk": "贈送泳帽 1 頂 + 襪子", "featured": false }
+    ]},
+
+    { "id": "b16", "type": "note", "text": "＊所有購買課程需於 2026/08/30 前使用完畢\n✹ 課堂之外，每個月不定期舉辦團練或活動，開放給學生免費參加" },
+
+    { "id": "b17", "type": "heading", "text": "選課方式" },
+    { "id": "b18", "type": "richtext", "paragraphs": [
+      "報名且匯款完畢後，我們將儘速與您聯絡，並加您入 LINE 選課群組！"
+    ]},
+
+    { "id": "b19", "type": "registrationForm", "formId": "swim-camp",
+      "steps": [
+        {
+          "id": "step1", "stepNumber": 1,
+          "heading": "您想要購買什麼游泳課程方案？",
+          "fields": [
+            {
+              "id": "f-swim-plan", "type": "singleSelect", "name": "swim-plan", "required": true, "withPricing": true,
+              "options": [
+                { "id": "o1", "label": "單堂課程", "value": "單堂課程｜$750", "price": "$750／堂", "perk": "" },
+                { "id": "o2", "label": "5 堂課程套餐", "value": "5堂課程套餐｜$3500", "price": "$3,500", "perk": "贈送 TO PRO 專屬泳帽 1 頂" },
+                { "id": "o3", "label": "10 堂課程套餐", "value": "10堂課程套餐｜$6000", "price": "$6,000", "perk": "贈送泳帽 1 頂 + 襪子" }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "step2", "stepNumber": 2,
+          "conditionalGroups": [
+            {
+              "id": "cg-single", "showWhen": { "fieldName": "swim-plan", "equals": "單堂課程｜$750" },
+              "heading": "留下您的資料，我們會盡快與您聯絡",
+              "note": "請於下方填寫欲報名之單堂課程日期、時段與課程名稱。",
+              "fields": [
+                { "id": "f1", "type": "text", "name": "name", "label": "姓名", "required": true },
+                { "id": "f2", "type": "text", "name": "nickname", "label": "有沒有外號或英文名呢？希望我們如何稱呼你？", "required": false },
+                { "id": "f3", "type": "text", "name": "phone", "label": "聯絡電話", "inputType": "tel", "required": true },
+                { "id": "f4", "type": "text", "name": "lineId", "label": "LINE ID", "required": true },
+                { "id": "f5", "type": "singleSelect", "name": "swimLevel", "label": "您目前的游泳狀況為何？", "required": true, "withPricing": false, "options": [
+                  { "id": "o1", "label": "可以自由式連續游 50 公尺以上", "value": "可以自由式連續游50公尺以上" },
+                  { "id": "o2", "label": "可以蛙式連續游 50 公尺以上", "value": "可以蛙式連續游50公尺以上" },
+                  { "id": "o3", "label": "可以自由式及蛙式連續游 50 公尺以上", "value": "可以自由式及蛙式連續游50公尺以上" }
+                ]},
+                { "id": "f6", "type": "textarea", "name": "healthNotes", "label": "身上是否有舊傷/疾病/不舒服的地方，請說明讓 TO PRO 教練團隊事先了解，若沒有請填無", "required": true },
+                { "id": "f7", "type": "text", "name": "preferredSession", "label": "請問您想要報名哪一天的哪一時段的課程？", "placeholder": "例：7/12（六）10:00 自由式基礎班", "required": true },
+                { "id": "f8", "type": "checkbox", "name": "priceAck", "label": "單堂課程費用為 $750／堂，小編將與您聯絡後，確認開課後再收費唷！謝謝！", "required": true },
+                { "id": "f9", "type": "textarea", "name": "remarks", "label": "備註或您有什麼其他希望我們知道的嗎？", "required": false }
+              ]
+            },
+            {
+              "id": "cg-5class", "showWhen": { "fieldName": "swim-plan", "equals": "5堂課程套餐｜$3500" },
+              "heading": "留下您的資料，我們會盡快與您聯絡",
+              "fields": [
+                { "id": "f1", "type": "text", "name": "name", "label": "姓名", "required": true, "row": 1 },
+                { "id": "f2", "type": "text", "name": "phone", "label": "手機號碼", "inputType": "tel", "required": true, "row": 1 },
+                { "id": "f3", "type": "text", "name": "email", "label": "Email 信箱", "inputType": "email", "required": true },
+                { "id": "f4", "type": "text", "name": "lineId", "label": "LINE ID（方便加入選課群組）", "required": false },
+                { "id": "f5", "type": "textarea", "name": "notes", "label": "想讓教練知道的事情（游泳經驗、可上課時段等）", "required": false }
+              ]
+            },
+            {
+              "id": "cg-10class", "showWhen": { "fieldName": "swim-plan", "equals": "10堂課程套餐｜$6000" },
+              "heading": "留下您的資料，我們會盡快與您聯絡",
+              "fields": [
+                { "id": "f1", "type": "text", "name": "name", "label": "姓名", "required": true, "row": 1 },
+                { "id": "f2", "type": "text", "name": "phone", "label": "手機號碼", "inputType": "tel", "required": true, "row": 1 },
+                { "id": "f3", "type": "text", "name": "email", "label": "Email 信箱", "inputType": "email", "required": true },
+                { "id": "f4", "type": "text", "name": "lineId", "label": "LINE ID（方便加入選課群組）", "required": false },
+                { "id": "f5", "type": "textarea", "name": "notes", "label": "想讓教練知道的事情（游泳經驗、可上課時段等）", "required": false }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "step3", "stepNumber": 3,
+          "heading": "課程注意事項",
+          "termsList": [
+            "本次課程為 TO PRO 夏季游泳訓練營自由選課制，課程使用期間為 115 年 6 月至 8 月，所有課程需於 115/08/30 前使用完畢。",
+            "TO PRO 團隊將於每月月中公布下個月份之課程主題、時段與開課資訊。",
+            "本訓練營採 LINE 群組登記選課制，學員可依照自身程度、需求與時間自由選擇欲參與之課程。",
+            "各課程皆為小班制教學，每堂課滿 3 人即開班，最多 8 人滿班；若未達開班人數，最晚將於課程開始前 24 小時公告通知。",
+            "所有課程僅限報名本人使用，不得轉讓、轉借或由他人代為上課。",
+            "所有課程過程中所拍攝之照片與影片，將授權 TO PRO 用於課程紀錄、活動回顧與品牌社群宣傳使用，不另作他途。",
+            "所有學員資料皆依《個人資料保護法》妥善保存與保密，不另作其他用途或公開。",
+            "各堂課程由不同專長教練執行，TO PRO 保有依現場情況調整教練人力安排之權利，以確保課程品質與安全。",
+            "游泳課程請自備泳裝、泳帽與泳鏡。"
+          ],
+          "fields": [
+            { "id": "f-agree", "type": "checkbox", "name": "agree-terms", "label": "我已詳閱並同意上述課程注意事項與相關規範。", "required": true }
+          ],
+          "note": "表單送出後，TO PRO 小編將儘速與您聯絡！"
+        }
+      ],
+      "successMessage": {
+        "heading": "報名資料已送出！",
+        "body": "我們已收到您的報名資訊，確認匯款後將盡快與您聯絡並邀請加入 LINE 選課群組。"
+      }
+    }
+  ]
+}

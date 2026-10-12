@@ -1,0 +1,569 @@
+/* ============================================================
+   TO PRO 桃園鐵人三項俱樂部 — Link-in-bio 活動微站專屬樣式
+   適用頁面：linkinbio.html／event.html／swim-camp.html／
+            running-plan.html／custom-course.html
+   依賴 css/style.css 提供的 :root 變數、reset 與 .btn／.form-row
+
+   設計方向：黑白高對比編輯感（hairline 分隔線、黑色藥丸按鈕、
+   跑步行事曆巨大日期數字、跑馬燈標語），Lavender 作唯一強調色。
+   Palette：Jet Black #0D0D0D／Deep Purple #433075／
+            Lavender #A58CF4／Soft White #FAFAFA
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@600;700;800;900&display=swap');
+
+/* ============================================================
+   Link-in-bio page (一頁式連結頁 / linkinbio.html)
+   ============================================================ */
+.lib-body{
+  /* Link-in-bio 微站專屬配色與字體，僅作用於 .lib-body 內的元素，不影響主站其他頁面 */
+  --navy: #0D0D0D;        /* Jet Black — 主要文字／按鈕 */
+  --coral: #A58CF4;       /* Lavender — 強調色／hover 底色 */
+  --coral-dark: #433075;  /* Deep Purple — 次要強調（日期、eyebrow） */
+  --aqua: #A58CF4;        /* Lavender */
+  --cream: #FFFFFF;       /* 卡片底色 */
+  --white: #FFFFFF;
+  --slate: #6E6E76;       /* 中性灰，用於次要文字 */
+  --line: rgba(13,13,13,0.14);
+  --font-eyebrow: 'Barlow Condensed', sans-serif;
+  --font-num: 'Barlow', sans-serif;
+
+  min-height: 100vh;
+  /* 依你提供的色卡順序（Soft White → Lavender → Deep Purple → Jet Black）做整頁柔和漸層，
+     多加中間過渡色階讓色相轉換更平滑，從頁面最頂到最底一次掃過，不重複貼圖 */
+  background: linear-gradient(170deg,
+    #FAFAFA 0%,
+    #D9CDF6 22%,
+    #A58CF4 42%,
+    #6B4FA0 62%,
+    #433075 80%,
+    #0D0D0D 100%);
+  padding: 48px 20px 40px;
+  display: flex;
+  justify-content: center;
+}
+.lib-card{
+  width: 100%;
+  max-width: 620px;
+}
+
+/* Hero 區塊（頭像／名稱／跑馬燈／簡介／社群）比照下方其他區塊，不另外套底色，直接顯示頁面漸層 */
+.lib-hero{
+  margin-bottom: 16px;
+}
+
+/* ---- 頭像：貼紙感黑框圓章 ---- */
+.lib-avatar{
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  background: var(--coral);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-num);
+  font-weight: 800;
+  font-size: 25px;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+  border: 3px solid var(--navy);
+  transform: rotate(-4deg);
+  box-shadow: 4px 4px 0 var(--navy);
+}
+.lib-name{
+  text-align: center;
+  color: var(--navy);
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+.lib-handle{
+  text-align: center;
+  /* 這行文字直接疊在漸層最淺的區段上，用 Deep Purple 而非灰色，確保對比度穩定達標 */
+  color: var(--coral-dark);
+  font-size: 13px;
+  margin-top: 5px;
+  font-family: var(--font-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---- 跑馬燈標語：黑底反白，呼應賽道標示牌 ---- */
+.lib-ticker{
+  margin: 20px 0;
+  overflow: hidden;
+  background: var(--navy);
+  border-radius: 8px;
+}
+.lib-ticker-track{
+  display: flex;
+  width: max-content;
+  animation: libTickerScroll 16s linear infinite;
+}
+.lib-ticker-track span{
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  font-family: var(--font-eyebrow);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--white);
+  white-space: nowrap;
+}
+.lib-ticker-track span::after{ content: '✦'; margin-left: 10px; color: var(--coral); }
+@keyframes libTickerScroll{
+  from{ transform: translateX(0); }
+  to{ transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce){
+  .lib-ticker-track{ animation: none; }
+}
+
+.lib-bio{
+  text-align: center;
+  color: var(--navy);
+  font-size: 14.5px;
+  line-height: 1.75;
+  margin: 18px auto 0;
+  max-width: 34ch;
+}
+.lib-bio .tag-line{
+  display: inline-flex;
+  margin: 12px auto 0;
+  background: var(--coral);
+  color: var(--navy);
+  font-weight: 700;
+  font-family: var(--font-eyebrow);
+  letter-spacing: 0.06em;
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 100px;
+  border: 1.5px solid var(--navy);
+}
+.lib-socials{
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 22px 0 28px;
+}
+.lib-socials a{
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 1.5px solid var(--navy);
+  color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform .22s ease, background .22s ease, color .22s ease;
+}
+.lib-socials a:hover{ background: var(--coral); color: var(--navy); transform: translateY(-3px); }
+.lib-socials svg{ width: 19px; height: 19px; }
+
+/* ---- 團練行事曆／當月活動／跑步課程／游泳課程：白底黑框下拉樣式 ---- */
+.sched-links{ margin-bottom: 14px; }
+.sched-panel-inner{ padding: 6px 4px 4px; }
+.sched-list{ display: flex; flex-direction: column; }
+
+/* 團練行事曆／當月活動共用：仿賽事場次表，巨大日期數字＋hairline 分隔。
+   整列（.sched-card-item）本身就是連結，觸控熱區是整行而不是右下角的小箭頭 */
+.sched-list li{ border-bottom: 1px solid var(--line); }
+.sched-list li:last-child{ border-bottom: 0; }
+.sched-card-item{
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 10px;
+  color: inherit;
+  text-decoration: none;
+  border-radius: 10px;
+  transition: background .2s ease;
+}
+.sched-card-item:hover,
+.sched-card-item:focus-visible{ background: #F4F0FC; }
+.sched-card-date-block{
+  display: flex; flex-direction: column; align-items: center;
+  flex-shrink: 0; width: 46px;
+}
+.sched-card-day{
+  font-family: var(--font-num);
+  font-weight: 800;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--navy);
+}
+.sched-card-weekday{
+  font-family: var(--font-eyebrow);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--slate);
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.sched-card-main{
+  flex: 1; min-width: 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.sched-card-left{ flex: 1; min-width: 0; }
+.sched-card-title{ display: block; font-weight: 700; font-size: 14px; color: var(--navy); }
+.sched-card-location{
+  display: block; font-size: 12px; color: var(--slate); margin-top: 3px;
+}
+.sched-card-right{
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0;
+}
+.sched-card-time{
+  font-family: var(--font-eyebrow); font-weight: 700; font-size: 13px;
+  letter-spacing: 0.04em; color: var(--coral-dark);
+}
+.sched-card-arrow{
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--navy); color: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0;
+  transition: background .2s ease, color .2s ease;
+}
+.sched-card-item:hover .sched-card-arrow,
+.sched-card-item:focus-visible .sched-card-arrow{ background: var(--coral); color: var(--navy); }
+
+@media (max-width: 480px){
+  .sched-card-main{ flex-direction: column; align-items: flex-start; gap: 8px; }
+  .sched-card-right{ flex-direction: row-reverse; align-items: center; width: 100%; justify-content: space-between; }
+}
+
+.course-info-cards{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.course-info-card{
+  display: block;
+  background: var(--white);
+  border: 1.5px solid var(--navy);
+  border-radius: 12px;
+  padding: 18px 12px;
+  color: var(--navy);
+  font-weight: 700; font-size: 13px;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.course-info-card:hover{ background: var(--coral); border-color: var(--navy); color: var(--navy); transform: translateY(-2px); }
+
+.lib-links{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.lib-item{
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1.5px solid var(--navy);
+}
+.lib-link{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--white);
+  border: none;
+  padding: 16px 18px;
+  transition: background .2s ease;
+  text-align: left;
+}
+.lib-item:hover .lib-link{ background: var(--coral); }
+.lib-link-standalone{
+  border-radius: 100px;
+  background: var(--navy);
+  border: 1.5px solid var(--coral);
+}
+.lib-link-standalone:hover{ background: var(--coral); }
+.lib-link .emoji{ font-size: 20px; line-height: 1; flex-shrink: 0; }
+.lib-link .txt{ flex: 1; }
+.lib-link .txt .t1{
+  font-weight: 700; font-size: 14.5px; color: var(--navy);
+  font-family: var(--font-eyebrow); letter-spacing: 0.03em; text-transform: uppercase;
+}
+.lib-link .txt .t2{ font-size: 12px; color: var(--slate); margin-top: 2px; }
+.lib-link .arrow{
+  color: var(--navy);
+  opacity: 0.7;
+  flex-shrink: 0;
+  transition: transform .3s ease;
+  font-size: 14px;
+}
+.lib-item.is-open .arrow{ transform: rotate(180deg); }
+.lib-link-standalone .txt .t1,
+.lib-link-standalone .arrow{ color: var(--white); opacity: 1; }
+.lib-link-standalone:hover .txt .t1,
+.lib-link-standalone:hover .arrow{ color: var(--navy); }
+/* 展開中的區塊維持 Deep Purple，跟 hover 的 Lavender 區隔開，讓「目前打開哪一區」一眼可辨 */
+.lib-item.is-open .lib-link{ background: var(--coral-dark); }
+.lib-item.is-open .lib-link .txt .t1,
+.lib-item.is-open .lib-link .arrow{ color: var(--white); opacity: 1; }
+.lib-panel{
+  max-height: 0;
+  overflow: hidden;
+  background: var(--white);
+  border-top: 0 solid var(--navy);
+  transition: max-height .45s ease;
+}
+.lib-item.is-open .lib-panel{ border-top-width: 1.5px; }
+.lib-panel-inner{ padding: 4px; }
+
+/* 獨立頁面（如 swim-camp.html／running-plan.html）：永遠展開的白底內容卡片 */
+.page-panel{
+  background: var(--white);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1.5px solid var(--navy);
+}
+.lib-iframe{
+  width: 100%;
+  height: 780px;
+  border: 0;
+  display: block;
+  background: var(--white);
+}
+.lib-panel-hint{
+  font-size: 11.5px;
+  color: var(--slate);
+  text-align: center;
+  padding: 10px 14px 14px;
+}
+
+/* ---- Activity detail content (inside expanded panel) ---- */
+.detail-content{ padding: 24px 22px 4px; }
+.detail-eyebrow{
+  font-family: var(--font-eyebrow);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--coral-dark);
+  text-transform: uppercase;
+}
+.detail-content h4{ font-size: 20px; margin: 6px 0 10px; color: var(--navy); font-weight: 900; }
+.detail-quote{ font-size: 13.5px; color: var(--slate); font-style: italic; margin-bottom: 16px; }
+.detail-copy p{ font-size: 14px; color: var(--navy); line-height: 1.8; margin-bottom: 12px; }
+.detail-h{
+  font-size: 15px; font-weight: 700; color: var(--navy);
+  margin: 22px 0 10px; padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.detail-checklist, .detail-arrow-list, .detail-check-list, .detail-info-list, .detail-number-list{
+  display: flex; flex-direction: column; gap: 9px; margin: 0 0 4px;
+}
+.detail-checklist li, .detail-arrow-list li{
+  font-size: 13.5px; color: var(--navy); line-height: 1.6;
+  padding-left: 20px; position: relative;
+}
+.detail-checklist li::before, .detail-arrow-list li::before{
+  content: '▸'; position: absolute; left: 0; color: var(--coral-dark); font-weight: 700;
+}
+.detail-check-list li{
+  font-size: 13.5px; color: var(--navy); line-height: 1.6;
+  padding-left: 24px; position: relative;
+}
+.detail-check-list li::before{
+  content: '☑'; position: absolute; left: 0; color: var(--coral-dark);
+}
+.detail-info-list li{
+  font-size: 13.5px; color: var(--navy); line-height: 1.6;
+  padding-left: 20px; position: relative;
+}
+.detail-info-list li::before{
+  content: '✦'; position: absolute; left: 0; top: 1px; color: var(--coral-dark); font-size: 11px;
+}
+/* 帶圈數字：用於順序有意義的清單（例如步驟說明），counter 取代 emoji 圈數字避免超過 20 或跨裝置顯示不一致 */
+.detail-number-list{ counter-reset: numlist; }
+.detail-number-list li{
+  font-size: 13.5px; color: var(--navy); line-height: 1.6;
+  padding-left: 26px; position: relative;
+  counter-increment: numlist;
+}
+.detail-number-list li::before{
+  content: counter(numlist);
+  position: absolute; left: 0; top: 0;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--coral-dark); color: var(--white);
+  font-size: 10.5px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-eyebrow);
+}
+/* 清單項目下方的說明文字（項目換行後的內容），適用於箭頭/打勾/星號/帶圈數字四種清單 */
+.list-item-desc{
+  display: block; font-size: 12px; font-weight: 400; color: var(--slate);
+  margin-top: 3px; line-height: 1.5;
+}
+.detail-tags{
+  font-size: 12.5px; color: var(--slate); text-align: center;
+  padding: 12px; background: #F4F0FC; border-radius: 10px; margin: 16px 0;
+  letter-spacing: 0.02em;
+}
+.detail-note-inline{
+  font-size: 12.5px; color: var(--slate); background: #F4F0FC;
+  padding: 13px 15px; border-radius: 10px; margin-top: 14px; line-height: 1.75;
+}
+.detail-image-placeholder{
+  border: 1.5px dashed var(--coral);
+  border-radius: 12px;
+  background: #F4F0FC;
+  color: var(--coral-dark);
+  font-size: 13px;
+  text-align: center;
+  padding: 40px 16px;
+  margin-bottom: 6px;
+  line-height: 1.7;
+}
+
+.pricing-cards{
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0;
+}
+.pricing-card{
+  border: 1.5px solid var(--line); border-radius: 12px; padding: 16px 10px; text-align: center;
+}
+.pricing-card.featured{ border-color: var(--navy); background: #F4F0FC; }
+.pc-title{ font-size: 12px; color: var(--slate); margin-bottom: 8px; }
+.pc-price{ font-family: var(--font-eyebrow); font-weight: 700; font-size: 19px; color: var(--navy); }
+.pc-price span{ font-size: 11px; font-weight: 400; color: var(--slate); }
+.pc-perk{ font-size: 11px; color: var(--coral-dark); margin-top: 8px; line-height: 1.5; }
+
+@media (max-width: 480px){
+  .pricing-cards{ grid-template-columns: 1fr; }
+}
+
+/* ---- Multi-step registration form ---- */
+.reg-form{
+  border-top: 1.5px solid var(--navy);
+  margin-top: 10px;
+  padding: 28px 24px 30px;
+  background: #FAFAFA;
+}
+.reg-form .form-row label{ font-size: 14px; }
+.req-mark{ color: var(--coral-dark); font-weight: 700; }
+/* 這條原本是給文字類輸入框（姓名/電話等）用的加大內距，選擇器沒有排除 checkbox/radio，
+   導致 .form-row 底下的單選/多選小方框（例如條件欄位群組裡有標籤的選項）也被硬塞進
+   16px/18px 內距，把只有 19x19px 的小方框撐爆、跟旁邊文字對不齊。加上 :not() 排除。 */
+.reg-form .form-row input:not([type="checkbox"]):not([type="radio"]),
+.reg-form .form-row select,
+.reg-form .form-row textarea{
+  padding: 16px 18px;
+  border-radius: 12px;
+  font-size: 15.5px;
+}
+.reg-form .form-row textarea{ min-height: 130px; }
+.reg-steps-indicator{
+  font-family: var(--font-eyebrow);
+  font-weight: 700;
+  font-size: 11px; letter-spacing: 0.12em;
+  color: var(--slate); text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.reg-steps-indicator b{ color: var(--coral-dark); }
+.reg-step{ display: none; }
+.reg-step.is-active{ display: block; animation: regFadeIn .35s ease; }
+@keyframes regFadeIn{ from{ opacity: 0; transform: translateY(8px); } to{ opacity: 1; transform: translateY(0); } }
+.reg-step h5{ font-size: 14.5px; color: var(--navy); margin-bottom: 16px; font-weight: 700; }
+
+.plan-options{ display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.plan-option{
+  display: flex; align-items: flex-start; flex-wrap: wrap;
+  background: var(--white); border: 1.5px solid var(--line); border-radius: 13px;
+  padding: 17px 18px; cursor: pointer;
+  transition: border-color .2s ease, background .2s ease;
+  /* 間距刻意不用 gap：部分較舊的內嵌瀏覽器（LINE／Instagram 應用內建瀏覽器等）
+     不支援 flex 的 gap 屬性，選取框會直接貼到文字上，改用 margin 確保任何瀏覽器都有間距 */
+}
+.plan-option:has(input:checked){ border-color: var(--navy); background: #F4F0FC; }
+.plan-option input{
+  accent-color: var(--coral-dark); width: 19px; height: 19px; flex-shrink: 0;
+  /* 用 flex-start + 固定的上邊距對齊「文字第一行」，取代 align-items:center。
+     center 是把選取框置中對齊到整段文字的高度：文字只有一行時勉強看得過去，
+     但選項文字換行成兩行時，置中點會落在第一行跟第二行中間，選取框看起來明顯偏上、
+     文字偏下；不同瀏覽器繪製原生 checkbox/radio 的內部視覺重心也不一致，
+     即使單行文字也可能跟置中計算對不齊。改成固定偏移量不依賴瀏覽器自行計算，
+     在所有瀏覽器/文字長度下都能穩定對齊第一行。 */
+  margin: 3px 12px 0 0; padding: 0;
+}
+.po-main{ font-weight: 700; font-size: 14.5px; color: var(--navy); flex: 1; }
+.po-price{ font-family: var(--font-eyebrow); font-weight: 700; color: var(--coral-dark); font-size: 14.5px; margin-left: 12px; }
+.po-perk{ width: 100%; font-size: 12.5px; color: var(--slate); padding-left: 31px; margin-top: 6px; }
+
+.terms-list{
+  display: flex; flex-direction: column; gap: 10px;
+  margin: 0 0 4px; padding-left: 20px;
+}
+.terms-list li{ font-size: 12.5px; color: var(--slate); line-height: 1.7; }
+
+.reg-nav{ display: flex; gap: 10px; justify-content: flex-end; }
+.reg-nav .btn{ padding: 14px 26px; font-size: 14.5px; }
+.btn:disabled{ opacity: 0.45; cursor: not-allowed; }
+.btn-text{
+  background: none; border: none; color: var(--slate);
+  font-weight: 600; font-size: 14.5px; padding: 14px 6px;
+}
+.reg-success{
+  text-align: center; padding: 20px 10px 6px;
+}
+.reg-success .check{
+  width: 54px; height: 54px; border-radius: 50%;
+  background: var(--coral); color: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; margin: 0 auto 16px;
+  border: 1.5px solid var(--navy);
+}
+.reg-success h5{ margin-bottom: 8px; }
+.reg-success p{ font-size: 13.5px; color: var(--slate); }
+
+.lib-foot{
+  text-align: center;
+  margin-top: 34px;
+}
+/* 自帶實色底，不管頁面多長、footer 落在漸層哪一段都保持可讀（跟跑馬燈、頭像一樣是自帶底色的元件） */
+.lib-foot a{
+  display: inline-flex;
+  background: var(--navy);
+  color: rgba(250,250,250,0.75);
+  font-size: 12.5px;
+  font-family: var(--font-eyebrow);
+  letter-spacing: 0.04em;
+  padding: 8px 16px;
+  border-radius: 100px;
+  transition: background .2s ease, color .2s ease;
+}
+.lib-foot a:hover{ background: var(--coral); color: var(--navy); }
+
+@media (max-width: 420px){
+  .lib-body{ padding: 36px 14px 30px; }
+}
+
+/* ---- 活動詳情頁（event.html） ---- */
+.event-card{ max-width: 460px; }
+.event-back{
+  display: inline-flex;
+  color: var(--slate);
+  font-size: 13px;
+  font-family: var(--font-eyebrow);
+  letter-spacing: 0.04em;
+  margin-bottom: 22px;
+}
+.event-back:hover{ color: var(--navy); }
+.event-eyebrow{
+  font-family: var(--font-eyebrow); font-weight: 700; font-size: 12px; letter-spacing: 0.12em;
+  color: var(--coral-dark); text-transform: uppercase; margin-bottom: 8px;
+}
+.event-title{ font-size: 22px; font-weight: 900; color: var(--navy); margin-bottom: 22px; line-height: 1.4; }
+.event-meta{
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--white);
+  border: 1.5px solid var(--navy);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+}
+.event-meta-row{ display: flex; align-items: baseline; gap: 10px; }
+.event-meta-label{ font-size: 12px; color: var(--slate); flex-shrink: 0; width: 44px; }
+.event-meta-value{ font-size: 14.5px; font-weight: 700; color: var(--navy); }
+.event-note{
+  font-size: 13px; color: var(--slate); line-height: 1.75;
+  margin-bottom: 22px;
+}
+.event-cta{ width: 100%; justify-content: center; }

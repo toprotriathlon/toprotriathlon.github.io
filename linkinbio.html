@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TO PRO 桃園鐵人三項俱樂部｜連結總覽</title>
+<meta name="description" content="TO PRO 桃園鐵人三項俱樂部｜課程報名、社群連結、本月團練時間表，一頁掌握所有資訊。">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/linkinbio.css">
+</head>
+<body class="lib-body">
+
+<div class="lib-card">
+
+<div class="lib-hero">
+
+  <div class="lib-avatar">TP</div>
+  <div class="lib-name">TO PRO 桃園鐵人三項俱樂部</div>
+  <div class="lib-handle">@topro.triathlon</div>
+
+  <div class="lib-ticker" aria-hidden="true">
+    <div class="lib-ticker-track">
+      <span>TO GROW EVERY DAMN DAY</span>
+      <span>游泳・跑步・單車</span>
+      <span>TO GROW EVERY DAMN DAY</span>
+      <span>游泳・跑步・單車</span>
+      <span>TO GROW EVERY DAMN DAY</span>
+      <span>游泳・跑步・單車</span>
+    </div>
+  </div>
+
+  <p class="lib-bio">
+    TO PRO｜to grow every damn day<br>
+    為熱愛三鐵而聚<br><br>
+    課程項目：游泳・跑步・單車專項｜私人課程｜線上課表｜團體包班
+    <span class="tag-line">不要再一個人練啦，加入我們</span>
+  </p>
+
+  <!-- 社群連結 -->
+  <div class="lib-socials">
+    <a href="https://lin.ee/U78PTTR" target="_blank" rel="noopener" aria-label="LINE 官方帳號">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="14" rx="6"/><path d="M8 18l-1 3 3-2"/></svg>
+    </a>
+    <a href="https://www.instagram.com/topro.triathlon" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+    </a>
+    <a href="https://www.threads.com/@topro.triathlon" target="_blank" rel="noopener" aria-label="Threads">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c5 0 8 3 8 8.5S17 21 12 21s-8-3-8-9.5S7 3 12 3z"/><path d="M9 12c0-2 1.3-3 3-3s3 1 3 2.6c0 2.4-2.5 2.4-3 3.4"/></svg>
+    </a>
+  </div>
+
+</div>
+
+  <!-- 團練行事曆／當月活動／跑步課程／游泳課程：白底下拉選單，沿用跟下方報名清單一樣的收合元件 -->
+  <div class="lib-links sched-links">
+
+    <div class="lib-item">
+      <button class="lib-link" type="button" data-toggle="team-schedule">
+        <span class="txt"><span class="t1">團練行事曆</span></span>
+        <span class="arrow">⌄</span>
+      </button>
+      <div class="lib-panel" id="team-schedule">
+        <div class="sched-panel-inner">
+          <ul class="sched-list" id="teamScheduleList"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="lib-item">
+      <button class="lib-link" type="button" data-toggle="monthly-events">
+        <span class="txt"><span class="t1">當月活動</span></span>
+        <span class="arrow">⌄</span>
+      </button>
+      <div class="lib-panel" id="monthly-events">
+        <div class="sched-panel-inner">
+          <ul class="sched-list" id="monthlyEventList"></ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="lib-item">
+      <button class="lib-link" type="button" data-toggle="running-courses">
+        <span class="txt"><span class="t1">跑步課程</span></span>
+        <span class="arrow">⌄</span>
+      </button>
+      <div class="lib-panel" id="running-courses">
+        <div class="sched-panel-inner">
+          <div class="course-info-cards">
+            <a href="running-plan.html" target="_blank" rel="noopener" class="course-info-card">新一期跑班</a>
+            <a href="event-page.html?slug=customize-running-camp" target="_blank" rel="noopener" class="course-info-card">客製化課程</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lib-item">
+      <button class="lib-link" type="button" data-toggle="swim-courses">
+        <span class="txt"><span class="t1">游泳課程</span></span>
+        <span class="arrow">⌄</span>
+      </button>
+      <div class="lib-panel" id="swim-courses">
+        <div class="sched-panel-inner">
+          <div class="course-info-cards">
+            <a href="event-page.html?slug=swim-camp" target="_blank" rel="noopener" class="course-info-card">新一期游泳班</a>
+            <a href="custom-course.html" target="_blank" rel="noopener" class="course-info-card">客製化課程</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a class="lib-link lib-link-standalone" href="https://lin.ee/U78PTTR" target="_blank" rel="noopener">
+      <span class="txt"><span class="t1">加入官方 LINE／與小編聊聊</span></span>
+      <span class="arrow" style="transform:rotate(-90deg);">⌄</span>
+    </a>
+
+    <a class="lib-link lib-link-standalone" href="#" target="_blank" rel="noopener" title="請替換為 TOPRO 社群連結">
+      <span class="txt"><span class="t1">加入 TOPRO 社群</span></span>
+      <span class="arrow" style="transform:rotate(-90deg);">⌄</span>
+    </a>
+
+  </div>
+
+  <div class="lib-foot">
+    <a href="index.html">© 2026 TO PRO 桃園鐵人三項俱樂部</a>
+  </div>
+
+</div>
+
+<script>
+  function refreshPanelHeight(panel) {
+    if (!panel) return;
+    var item = panel.closest('.lib-item');
+    if (item && item.classList.contains('is-open')) {
+      // 先設回 auto 量出真實高度，再指定回去讓 transition 能正確動畫
+      panel.style.maxHeight = 'none';
+      var h = panel.scrollHeight;
+      panel.style.maxHeight = h + 'px';
+    }
+  }
+
+  // ============ 團練行事曆 / 當月活動 ============
+  // 團練行事曆已換成正式場次；當月活動目前仍為範例資料，確定後請直接替換
+  var teamScheduleData = [
+    { date: '2026-07-07', time: '19:00', title: '間歇跑 700m × 6–8 組', desc: '桃園三民運動公園' },
+    { date: '2026-07-11', time: '05:30', title: '長距離跑 12–15K', desc: '蘆興景觀埤塘生態公園' },
+    { date: '2026-07-12', time: '06:00', title: '北海岸看海路線・約騎 80K', desc: '詳細集合地點另行公布' },
+    { date: '2026-07-31', time: '20:15', title: '游泳團練', desc: '桃園市立游泳池' }
+  ];
+  var monthlyEventData = [
+    { date: '2026-07-05', time: '07:15', title: 'TO PRO × Loop Café 編織 × 咖啡跑', desc: 'Loop Cafe 路譜咖啡' },
+    { date: '2026-07-25', time: '07:45', title: 'Bætter × TO PRO 桃園女子跑聚', desc: '肉球尼尼 Meatball Nini' }
+  ];
+
+  var weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
+
+  function renderCardScheduleList(listEl, items, groupKey) {
+    listEl.innerHTML = '';
+    items.forEach(function (item) {
+      var d = new Date(item.date + 'T00:00:00');
+      var day = String(d.getDate()).padStart(2, '0');
+      var weekday = weekdayNames[d.getDay()];
+      var li = document.createElement('li');
+      var detailHref = 'event.html' +
+        '?title=' + encodeURIComponent(item.title) +
+        '&date=' + encodeURIComponent(item.date) +
+        '&time=' + encodeURIComponent(item.time) +
+        '&location=' + encodeURIComponent(item.desc) +
+        '&group=' + groupKey;
+      // 整列都是可點擊的連結，而非只有右下角的小箭頭，避免觸控熱區過小
+      li.innerHTML =
+        '<a class="sched-card-item" href="' + detailHref + '" target="_blank" rel="noopener" aria-label="查看「' + item.title + '」詳情頁">' +
+          '<span class="sched-card-date-block">' +
+            '<span class="sched-card-day">' + day + '</span>' +
+            '<span class="sched-card-weekday">週' + weekday + '</span>' +
+          '</span>' +
+          '<span class="sched-card-main">' +
+            '<span class="sched-card-left">' +
+              '<span class="sched-card-title">' + item.title + '</span>' +
+              '<span class="sched-card-location">' + item.desc + '</span>' +
+            '</span>' +
+            '<span class="sched-card-right">' +
+              '<span class="sched-card-time">' + item.time + '</span>' +
+              '<span class="sched-card-arrow" aria-hidden="true">↗</span>' +
+            '</span>' +
+          '</span>' +
+        '</a>';
+      listEl.appendChild(li);
+    });
+  }
+
+  renderCardScheduleList(document.getElementById('teamScheduleList'), teamScheduleData, 'team');
+  renderCardScheduleList(document.getElementById('monthlyEventList'), monthlyEventData, 'monthly');
+
+  document.querySelectorAll('[data-toggle]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var item = btn.closest('.lib-item');
+      var panel = item.querySelector('.lib-panel');
+      var wasOpen = item.classList.contains('is-open');
+
+      // 收合所有其他已展開的項目（一次只開一個，畫面更清爽）
+      document.querySelectorAll('.lib-item.is-open').forEach(function (openItem) {
+        if (openItem !== item) {
+          openItem.classList.remove('is-open');
+          openItem.querySelector('.lib-panel').style.maxHeight = '0px';
+        }
+      });
+
+      item.classList.toggle('is-open', !wasOpen);
+
+      // 第一次展開時才載入 iframe（延遲載入，加快頁面初始速度）
+      if (!wasOpen) {
+        var iframe = panel.querySelector('iframe[data-src]');
+        if (iframe) {
+          iframe.src = iframe.getAttribute('data-src');
+          iframe.removeAttribute('data-src');
+        }
+        // 展開：動態量出真實內容高度，避免被固定高度裁切
+        panel.style.maxHeight = panel.scrollHeight + 'px';
+        setTimeout(function () {
+          item.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      } else {
+        panel.style.maxHeight = '0px';
+      }
+    });
+  });
+
+  // 內容尺寸改變時（例如圖片載入完成、視窗縮放）重新量測已展開面板的高度
+  window.addEventListener('resize', function () {
+    document.querySelectorAll('.lib-item.is-open .lib-panel').forEach(refreshPanelHeight);
+  });
+  document.querySelectorAll('.lib-item .lib-panel img').forEach(function (img) {
+    img.addEventListener('load', function () { refreshPanelHeight(img.closest('.lib-panel')); });
+  });
+
+</script>
+
+</body>
+</html>
