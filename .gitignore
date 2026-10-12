@@ -3,3 +3,10 @@ scripts/service-account.json
 node_modules/
 .DS_Store
 .env
+# 官網其他頁面：先不上線，準備好後把這幾行刪掉再 git add
+home.html
+about.html
+programs.html
+team.html
+contact.html
+event.html
