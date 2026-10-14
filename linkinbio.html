@@ -6,6 +6,7 @@
 <title>TO PRO 桃園鐵人三項俱樂部｜連結總覽</title>
 <meta name="description" content="TO PRO 桃園鐵人三項俱樂部｜課程報名、社群連結、本月團練時間表，一頁掌握所有資訊。">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/linkinbio.css">
 </head>
@@ -15,7 +16,7 @@
 
 <div class="lib-hero">
 
-  <div class="lib-avatar">TP</div>
+  <div class="lib-avatar"><img src="assets/logo-circle.jpg" alt="TO PRO Triathlon Club logo"></div>
   <div class="lib-name">TO PRO 桃園鐵人三項俱樂部</div>
   <div class="lib-handle">@topro.triathlon</div>
 
@@ -31,11 +32,16 @@
   </div>
 
   <p class="lib-bio">
-    TO PRO｜to grow every damn day<br>
-    為熱愛三鐵而聚<br><br>
-    課程項目：游泳・跑步・單車專項｜私人課程｜線上課表｜團體包班
-    <span class="tag-line">不要再一個人練啦，加入我們</span>
+    TO PRO｜為熱愛三鐵而聚
   </p>
+
+  <!-- 輪播照片（比例 5:4）。要換照片：把 assets/carousel/ 裡的圖換成自己的（jpg/png/webp 都可），並修改下方 src；要增減張數就複製或刪除一個 <figure> -->
+  <section class="lib-carousel" aria-label="活動照片">
+    <div class="lib-carousel-track">
+      <figure class="lib-slide"><img src="assets/carousel/photo-1.jpg" alt="TO PRO 學員結業合照"></figure>
+    </div>
+    <div class="lib-carousel-dots"></div>
+  </section>
 
   <!-- 社群連結 -->
   <div class="lib-socials">
@@ -54,30 +60,6 @@
 
   <!-- 團練行事曆／當月活動／跑步課程／游泳課程：白底下拉選單，沿用跟下方報名清單一樣的收合元件 -->
   <div class="lib-links sched-links">
-
-    <div class="lib-item">
-      <button class="lib-link" type="button" data-toggle="team-schedule">
-        <span class="txt"><span class="t1">團練行事曆</span></span>
-        <span class="arrow">⌄</span>
-      </button>
-      <div class="lib-panel" id="team-schedule">
-        <div class="sched-panel-inner">
-          <ul class="sched-list" id="teamScheduleList"></ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="lib-item">
-      <button class="lib-link" type="button" data-toggle="monthly-events">
-        <span class="txt"><span class="t1">當月活動</span></span>
-        <span class="arrow">⌄</span>
-      </button>
-      <div class="lib-panel" id="monthly-events">
-        <div class="sched-panel-inner">
-          <ul class="sched-list" id="monthlyEventList"></ul>
-        </div>
-      </div>
-    </div>
 
     <div class="lib-item">
       <button class="lib-link" type="button" data-toggle="running-courses">
@@ -109,13 +91,32 @@
       </div>
     </div>
 
-    <a class="lib-link lib-link-standalone" href="https://lin.ee/U78PTTR" target="_blank" rel="noopener">
-      <span class="txt"><span class="t1">加入官方 LINE／與小編聊聊</span></span>
-      <span class="arrow" style="transform:rotate(-90deg);">⌄</span>
-    </a>
+    <div class="lib-item">
+      <button class="lib-link" type="button" data-toggle="monthly-events">
+        <span class="txt"><span class="t1">當月特別活動</span></span>
+        <span class="arrow">⌄</span>
+      </button>
+      <div class="lib-panel" id="monthly-events">
+        <div class="sched-panel-inner">
+          <ul class="sched-list" id="monthlyEventList"></ul>
+        </div>
+      </div>
+    </div>
 
-    <a class="lib-link lib-link-standalone" href="#" target="_blank" rel="noopener" title="請替換為 TOPRO 社群連結">
-      <span class="txt"><span class="t1">加入 TOPRO 社群</span></span>
+    <div class="lib-item">
+      <button class="lib-link" type="button" data-toggle="team-schedule">
+        <span class="txt"><span class="t1">團練行事曆</span></span>
+        <span class="arrow">⌄</span>
+      </button>
+      <div class="lib-panel" id="team-schedule">
+        <div class="sched-panel-inner">
+          <ul class="sched-list" id="teamScheduleList"></ul>
+        </div>
+      </div>
+    </div>
+
+    <a class="lib-link lib-link-standalone" href="https://lin.ee/U78PTTR" target="_blank" rel="noopener">
+      <span class="txt"><span class="t1">加入官方 LINE．諮詢三鐵訓練計劃</span></span>
       <span class="arrow" style="transform:rotate(-90deg);">⌄</span>
     </a>
 
@@ -126,6 +127,52 @@
   </div>
 
 </div>
+
+<script>
+  // 輪播：scroll-snap 負責滑動，這裡只處理圓點與自動播放
+  (function () {
+    var root = document.querySelector('.lib-carousel');
+    if (!root) return;
+    var track = root.querySelector('.lib-carousel-track');
+    var slides = root.querySelectorAll('.lib-slide');
+    var dotsWrap = root.querySelector('.lib-carousel-dots');
+    var timer = null;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    slides.forEach(function (_, i) {
+      var d = document.createElement('button');
+      d.type = 'button';
+      d.setAttribute('aria-label', '第 ' + (i + 1) + ' 張');
+      d.addEventListener('click', function () { go(i); restart(); });
+      dotsWrap.appendChild(d);
+    });
+    dotsWrap.hidden = slides.length < 2;
+    var dots = dotsWrap.querySelectorAll('button');
+
+    function index() { return Math.round(track.scrollLeft / track.clientWidth); }
+    function go(i) {
+      i = (i + slides.length) % slides.length;
+      track.scrollTo({ left: i * track.clientWidth, behavior: reduce ? 'auto' : 'smooth' });
+    }
+    function mark() {
+      var cur = index();
+      dots.forEach(function (d, i) { d.classList.toggle('is-active', i === cur); });
+    }
+    function restart() {
+      clearInterval(timer);
+      if (reduce || slides.length < 2) return;
+      timer = setInterval(function () { go(index() + 1); }, 4000);
+    }
+
+    track.addEventListener('scroll', mark, { passive: true });
+    root.addEventListener('pointerdown', function () { clearInterval(timer); });
+    root.addEventListener('pointerup', restart);
+    root.addEventListener('mouseenter', function () { clearInterval(timer); });
+    root.addEventListener('mouseleave', restart);
+    window.addEventListener('resize', function () { go(index()); });
+    mark(); restart();
+  })();
+</script>
 
 <script>
   function refreshPanelHeight(panel) {

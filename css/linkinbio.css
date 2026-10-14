@@ -16,6 +16,7 @@
    Link-in-bio page (一頁式連結頁 / linkinbio.html)
    ============================================================ */
 .lib-body{
+  overflow-x: clip;
   /* Link-in-bio 微站專屬配色與字體，僅作用於 .lib-body 內的元素，不影響主站其他頁面 */
   --navy: #0D0D0D;        /* Jet Black — 主要文字／按鈕 */
   --coral: #A58CF4;       /* Lavender — 強調色／hover 底色 */
@@ -52,7 +53,7 @@
   margin-bottom: 16px;
 }
 
-/* ---- 頭像：貼紙感黑框圓章 ---- */
+/* ---- 頭像：圓形 logo ---- */
 .lib-avatar{
   width: 88px; height: 88px;
   border-radius: 50%;
@@ -64,10 +65,9 @@
   font-size: 25px;
   letter-spacing: -0.02em;
   color: var(--navy);
-  border: 3px solid var(--navy);
-  transform: rotate(-4deg);
-  box-shadow: 4px 4px 0 var(--navy);
+  overflow: hidden;
 }
+.lib-avatar img{ width: 100%; height: 100%; object-fit: cover; display: block; }
 .lib-name{
   text-align: center;
   color: var(--navy);
@@ -567,3 +567,20 @@
   margin-bottom: 22px;
 }
 .event-cta{ width: 100%; justify-content: center; }
+
+/* 輪播照片：比例固定 5:4（寬:高） */
+.lib-carousel{ position: relative; aspect-ratio: 5 / 4; width: min(100vw, 620px); margin: 14px 0 14px calc(50% - min(100vw, 620px) / 2); overflow: hidden; }
+/* 手機上左右貼齊螢幕邊緣（滿版），桌機上與頁面內容同寬（上限 620px），沒有圓角與外框 */
+.lib-carousel-track{
+  position: absolute; inset: 0;
+  display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none;
+}
+.lib-carousel-track::-webkit-scrollbar{ display: none; }
+.lib-slide{ flex: 0 0 100%; width: 100%; height: 100%; margin: 0; scroll-snap-align: start; position: relative; }
+.lib-slide img{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.lib-carousel-dots[hidden]{ display: none; }
+.lib-carousel-dots{ position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; gap: 6px; }
+.lib-carousel-dots button{ width: 7px; height: 7px; padding: 0; border: 0; border-radius: 50%; background: rgba(255,255,255,0.55); cursor: pointer; }
+.lib-carousel-dots button.is-active{ background: #fff; width: 18px; border-radius: 4px; }
+
+.lib-bio-rest{ margin-top: 0; }
