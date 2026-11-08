@@ -568,8 +568,8 @@
 }
 .event-cta{ width: 100%; justify-content: center; }
 
-/* 輪播照片：比例固定 5:4（寬:高） */
-.lib-carousel{ position: relative; aspect-ratio: 5 / 4; width: min(100vw, 620px); margin: 14px 0 14px calc(50% - min(100vw, 620px) / 2); overflow: hidden; }
+/* 輪播照片：比例固定 5:3（寬:高） */
+.lib-carousel{ position: relative; aspect-ratio: 5 / 3; width: min(100vw, 620px); margin: 14px 0 14px calc(50% - min(100vw, 620px) / 2); overflow: hidden; }
 /* 手機上左右貼齊螢幕邊緣（滿版），桌機上與頁面內容同寬（上限 620px），沒有圓角與外框 */
 .lib-carousel-track{
   position: absolute; inset: 0;
