@@ -28,6 +28,7 @@ const App = {
       loginNotice: "",
       showPwd: false,
       menuOpen: false,
+      navOpen: false,
       pwd: { current: "", next: "", msg: "", err: "" },
       view: route.view,
       slug: route.slug,
@@ -47,7 +48,7 @@ const App = {
       this.authChecked = true;
     });
     // 點選單以外的地方、或按 Esc，就收起設定選單
-    document.addEventListener("click", () => { this.menuOpen = false; });
+    document.addEventListener("click", () => { this.menuOpen = false; this.navOpen = false; });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") { this.menuOpen = false; this.showPwd = false; } });
     window.addEventListener("popstate", () => {
       const route = readRoute();
@@ -59,6 +60,7 @@ const App = {
     navigate(view, slug) {
       this.view = view;
       this.slug = slug || "";
+      this.navOpen = false;
       const url = new URL(location.href);
       url.searchParams.set("view", view);
       if (slug) url.searchParams.set("slug", slug); else url.searchParams.delete("slug");
@@ -100,9 +102,15 @@ const App = {
     <div v-if="!authChecked"></div>
     <LoginView v-else-if="!user || !isAdmin" :error="loginError || (user && !isAdmin ? '此帳號沒有後台管理權限。' : '')" @login="login" @reset="resetPassword" :notice="loginNotice" />
     <div class="admin-shell" v-else>
-      <aside class="admin-sidebar">
-        <div class="brand">TO PRO 後台</div>
-        <div class="brand-sub">{{ user.email }}</div>
+      <aside class="admin-sidebar" :class="{ 'is-open': navOpen }" @click.stop>
+        <div class="admin-sidebar-head">
+          <div>
+            <div class="brand">TO PRO 後台</div>
+            <div class="brand-sub">{{ user.email }}</div>
+          </div>
+          <button class="admin-burger" @click="navOpen = !navOpen" :aria-expanded="navOpen" aria-label="選單">{{ navOpen ? '✕' : '☰' }}</button>
+        </div>
+        <div class="admin-drawer">
         <nav class="admin-nav">
           <button
             v-for="s in NAV_SECTIONS" :key="s.id"
@@ -125,6 +133,7 @@ const App = {
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             <span>設定</span>
           </button>
+        </div>
         </div>
       </aside>
       <div class="admin-modal-overlay" v-if="showPwd" @click.self="closePassword">
