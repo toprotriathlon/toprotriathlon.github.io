@@ -87,7 +87,7 @@
 
 ## 5. 安全規則
 
-**Firestore**（實際部署的規則見 `scripts/setup-firebase.sh`）：訪客可讀已發布頁面、只能新增（不能讀取/列表）報名資料；後台帳號（`admins/{uid}` 有文件）可讀寫頁面（含草稿）、可讀報名名單。`schedule_items`／`course_cards`／`carousel_slides`／`site_settings` 目前全部拒絕讀寫（尚未建立功能，避免留下未預期的開放權限）。
+**Firestore**（實際部署的規則見 `scripts/setup-firebase.sh`）：訪客可讀已發布頁面、只能新增（不能讀取/列表）報名資料；後台帳號（`admins/{uid}` 有文件）可讀寫頁面（含草稿）、可讀報名名單，並可在後台「管理者」頁籤新增／移除其他管理者（`admins/{uid}` 允許 `isAdmin()` 寫入）。`schedule_items`（行事曆）、`carousel_slides`（輪播圖）與 `course_cards`（課程連結按鈕）：任何人可讀（公開頁面要顯示）、只有後台帳號可寫。`site_settings` 目前全部拒絕讀寫（尚未建立功能，避免留下未預期的開放權限）。
 
 **已知限制**：草稿與已發布內容存在同一份 Firestore 文件裡，規則沒辦法做欄位層級的過濾——頁面一旦發布過一次，之後在後台編輯中的草稿內容技術上可以被直接查詢資料庫的人讀到（雖然公開頁面本身不會顯示草稿）。這是經確認可接受的簡化（草稿內容本來就打算公開，不是敏感資訊），如果之後真的需要「草稿內容只有登入才能讀到」的保證，需要拆成 `pages/{slug}/draft/current` 與 `pages/{slug}/published/current` 兩個子集合。
 
@@ -99,10 +99,10 @@
 |---|---|---|
 | Phase 1 | `pages`/`submissions`/`admins` collection、後台區塊編輯器、報名表單建構器、公開渲染引擎、`swim-camp` 轉為第一個範例頁面 | 完成 |
 | Phase 2 | 後台「報名紀錄」列表畫面（`submissions` 已經在寫入，只差瀏覽介面） | 未開始 |
-| Phase 3 | `schedule_items`（合併原本 `team_schedule`＋`monthly_events`，用 `category` 欄位區分）+ 後台「行事曆」管理，取代 `linkinbio.html` 寫死的 `teamScheduleData`／`monthlyEventData` | 未開始 |
-| Phase 4 | `course_cards`（對應「跑步課程／游泳課程」下拉裡的方框卡片、「加入 LINE／社群」獨立連結列）+ 後台「課程卡片」管理 | 未開始 |
+| Phase 3 | `schedule_items`（用 `group` 欄位區分 `monthly`／`team`）+ 後台「當月特別活動」「團練行事曆」管理；`linkinbio.html` 優先讀資料庫，讀不到或資料庫為空時退回寫死的 `teamScheduleData`／`monthlyEventData` | 完成 |
+| Phase 4 | `course_cards`（對應「跑步課程／游泳課程」下拉裡的按鈕，欄位 `group`／`label`／`url`／`order`；`url` 通常是 Google 表單連結）+ 後台「課程連結」管理；資料庫為空時前台退回 HTML 內建的 4 個按鈕。「加入 LINE／社群」獨立連結列尚未做 | 部分完成 |
 | Phase 5 | `site_settings`（LINE／IG／Threads 等網址）+ 後台「網站設定」管理 | 未開始 |
-| Phase 6 | `carousel_slides` + 前台輪播元件（目前網站上還沒有輪播的 HTML/CSS，需要另外設計版型）+ 後台「輪播圖」管理 | 未開始 |
+| Phase 6 | `carousel_slides` + 前台輪播元件 + 後台「輪播圖」管理。照片在瀏覽器縮小後以 data URL 存進 Firestore 文件（不需要 Storage／Blaze 方案），上傳時從中心裁成固定 1360×816（5:3），後台只能上傳與刪除、沒有其他設定；資料庫為空時退回 HTML 內建的照片 | 完成 |
 | Phase 7+ | 報名通知（Email/LINE）— 需要 Cloud Functions，屆時要從 Spark 升級到 Blaze 付費方案 | 未開始，非必要 |
 
 Phase 3–6 全部沿用同一個 Firebase 專案／同一個 `admin.html`，只是新增 collection 與側邊欄分區，不是另開一套後台系統。

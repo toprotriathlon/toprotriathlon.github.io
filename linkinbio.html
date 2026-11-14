@@ -8,7 +8,7 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/linkinbio.css?v=2">
+<link rel="stylesheet" href="css/linkinbio.css?v=3">
 </head>
 <body class="lib-body">
 
@@ -70,7 +70,7 @@
       </button>
       <div class="lib-panel" id="running-courses">
         <div class="sched-panel-inner">
-          <div class="course-info-cards">
+          <div class="course-info-cards" id="runningCourseCards">
             <a href="running-plan.html" target="_blank" rel="noopener" class="course-info-card">新一期跑班</a>
             <a href="event-page.html?slug=customize-running-camp" target="_blank" rel="noopener" class="course-info-card">客製化課程</a>
           </div>
@@ -85,7 +85,7 @@
       </button>
       <div class="lib-panel" id="swim-courses">
         <div class="sched-panel-inner">
-          <div class="course-info-cards">
+          <div class="course-info-cards" id="swimCourseCards">
             <a href="event-page.html?slug=swim-camp" target="_blank" rel="noopener" class="course-info-card">新一期游泳班</a>
             <a href="custom-course.html" target="_blank" rel="noopener" class="course-info-card">客製化課程</a>
           </div>
@@ -131,39 +131,43 @@
 </div>
 
 <script>
-  // 輪播：scroll-snap 負責滑動，這裡只處理圓點與自動播放
+  // 輪播：scroll-snap 負責滑動，這裡處理圓點與自動播放。
+  // 照片可能在稍後由資料庫載入後替換，所以每次都即時讀取 .lib-slide，並提供 refreshCarousel() 重建。
   (function () {
     var root = document.querySelector('.lib-carousel');
     if (!root) return;
     var track = root.querySelector('.lib-carousel-track');
-    var slides = root.querySelectorAll('.lib-slide');
     var dotsWrap = root.querySelector('.lib-carousel-dots');
     var timer = null;
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    slides.forEach(function (_, i) {
-      var d = document.createElement('button');
-      d.type = 'button';
-      d.setAttribute('aria-label', '第 ' + (i + 1) + ' 張');
-      d.addEventListener('click', function () { go(i); restart(); });
-      dotsWrap.appendChild(d);
-    });
-    dotsWrap.hidden = slides.length < 2;
-    var dots = dotsWrap.querySelectorAll('button');
-
+    function slides() { return track.querySelectorAll('.lib-slide'); }
     function index() { return Math.round(track.scrollLeft / track.clientWidth); }
     function go(i) {
-      i = (i + slides.length) % slides.length;
+      var n = slides().length;
+      i = (i + n) % n;
       track.scrollTo({ left: i * track.clientWidth, behavior: reduce ? 'auto' : 'smooth' });
     }
     function mark() {
       var cur = index();
-      dots.forEach(function (d, i) { d.classList.toggle('is-active', i === cur); });
+      dotsWrap.querySelectorAll('button').forEach(function (d, i) { d.classList.toggle('is-active', i === cur); });
     }
     function restart() {
       clearInterval(timer);
-      if (reduce || slides.length < 2) return;
+      if (reduce || slides().length < 2) return;
       timer = setInterval(function () { go(index() + 1); }, 4000);
+    }
+    function buildDots() {
+      dotsWrap.innerHTML = '';
+      slides().forEach(function (_, i) {
+        var d = document.createElement('button');
+        d.type = 'button';
+        d.setAttribute('aria-label', '第 ' + (i + 1) + ' 張');
+        d.addEventListener('click', function () { go(i); restart(); });
+        dotsWrap.appendChild(d);
+      });
+      dotsWrap.hidden = slides().length < 2;
+      mark();
     }
 
     track.addEventListener('scroll', mark, { passive: true });
@@ -172,7 +176,9 @@
     root.addEventListener('mouseenter', function () { clearInterval(timer); });
     root.addEventListener('mouseleave', restart);
     window.addEventListener('resize', function () { go(index()); });
-    mark(); restart();
+
+    window.refreshCarousel = function () { track.scrollLeft = 0; buildDots(); restart(); };
+    buildDots(); restart();
   })();
 </script>
 
@@ -203,8 +209,25 @@
 
   var weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
 
+  function escHtml(v) {
+    return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // 報名連結只接受 http(s) 網址，擋掉 javascript: 之類的
+  function formUrl(u) {
+    u = String(u || '').trim();
+    return /^https?:\/\/\S+$/i.test(u) ? u : '';
+  }
+
   function renderCardScheduleList(listEl, items, groupKey) {
     listEl.innerHTML = '';
+    if (!items.length) {
+      var empty = document.createElement('li');
+      empty.className = 'sched-empty';
+      empty.textContent = '目前沒有排定的場次，敬請期待。';
+      listEl.appendChild(empty);
+      return;
+    }
     items.forEach(function (item) {
       var d = new Date(item.date + 'T00:00:00');
       var day = String(d.getDate()).padStart(2, '0');
@@ -216,20 +239,22 @@
         '&time=' + encodeURIComponent(item.time) +
         '&location=' + encodeURIComponent(item.desc) +
         '&group=' + groupKey;
+      // 有設定 Google 表單連結的活動，直接開啟表單；沒有的就開活動詳情頁
+      if (formUrl(item.url)) detailHref = formUrl(item.url);
       // 整列都是可點擊的連結，而非只有右下角的小箭頭，避免觸控熱區過小
       li.innerHTML =
-        '<a class="sched-card-item" href="' + detailHref + '" target="_blank" rel="noopener" aria-label="查看「' + item.title + '」詳情頁">' +
+        '<a class="sched-card-item" href="' + escHtml(detailHref) + '" target="_blank" rel="noopener" aria-label="查看「' + escHtml(item.title) + '」詳情頁">' +
           '<span class="sched-card-date-block">' +
             '<span class="sched-card-day">' + day + '</span>' +
             '<span class="sched-card-weekday">週' + weekday + '</span>' +
           '</span>' +
           '<span class="sched-card-main">' +
             '<span class="sched-card-left">' +
-              '<span class="sched-card-title">' + item.title + '</span>' +
-              '<span class="sched-card-location">' + item.desc + '</span>' +
+              '<span class="sched-card-title">' + escHtml(item.title) + '</span>' +
+              '<span class="sched-card-location">' + escHtml(item.desc) + '</span>' +
             '</span>' +
             '<span class="sched-card-right">' +
-              '<span class="sched-card-time">' + item.time + '</span>' +
+              '<span class="sched-card-time">' + escHtml(item.time) + '</span>' +
               '<span class="sched-card-arrow" aria-hidden="true">↗</span>' +
             '</span>' +
           '</span>' +
@@ -283,6 +308,90 @@
     img.addEventListener('load', function () { refreshPanelHeight(img.closest('.lib-panel')); });
   });
 
+</script>
+
+<script type="module">
+  // 行事曆與輪播的內容由後台（admin.html）維護，存在 Firestore。
+  // 讀取失敗、或資料庫還是空的時候，就維持上面寫死的內容，頁面不會壞掉。
+  import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+  import { db } from "./js/firebase-config.js";
+
+  async function load(name) {
+    var snap = await getDocs(collection(db, name));
+    return snap.docs.map(function (d) { return d.data(); });
+  }
+
+  try {
+    var items = await load('schedule_items');
+    if (items.length) {
+      [['team', 'teamScheduleList'], ['monthly', 'monthlyEventList']].forEach(function (pair) {
+        var list = items
+          .filter(function (x) { return x.group === pair[0] && x.date && x.title; })
+          .sort(function (a, b) { return (a.date + ' ' + (a.time || '')).localeCompare(b.date + ' ' + (b.time || '')); });
+        renderCardScheduleList(document.getElementById(pair[1]), list, pair[0]);
+      });
+      document.querySelectorAll('.lib-item.is-open .lib-panel').forEach(refreshPanelHeight);
+    }
+  } catch (e) { console.warn('schedule_items 讀取失敗，使用內建內容', e); }
+
+  try {
+    var slides = (await load('carousel_slides'))
+      .filter(function (x) { return x.image; })
+      .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+    if (slides.length) {
+      var track = document.querySelector('.lib-carousel-track');
+      track.innerHTML = '';
+      slides.forEach(function (sl, i) {
+        var fig = document.createElement('figure');
+        fig.className = 'lib-slide';
+        var img = document.createElement('img');
+        img.src = sl.image;
+        img.alt = sl.alt || '';
+        if (i > 0) img.loading = 'lazy';
+        img.style.objectPosition = (sl.fx == null ? 50 : sl.fx) + '% ' + (sl.fy == null ? 50 : sl.fy) + '%';
+        fig.appendChild(img);
+        track.appendChild(fig);
+      });
+      window.refreshCarousel();
+    }
+  } catch (e) { console.warn('carousel_slides 讀取失敗，使用內建照片', e); }
+
+  try {
+    // 只接受 http(s) 網址或網站內的相對路徑，擋掉 javascript: 之類的
+    var safeUrl = function (u) {
+      u = String(u || '').trim();
+      if (!u) return false;
+      if (/^https?:\/\/\S+$/i.test(u)) return true;
+      return !/^[a-z][a-z0-9+.-]*:/i.test(u) && !/\s/.test(u);
+    };
+    var cards = await load('course_cards');
+    if (cards.length) {
+      [['running', 'runningCourseCards'], ['swim', 'swimCourseCards']].forEach(function (pair) {
+        var box = document.getElementById(pair[1]);
+        var list = cards
+          .filter(function (x) { return x.group === pair[0] && x.label && safeUrl(x.url); })
+          .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
+        box.innerHTML = '';
+        if (!list.length) {
+          var p = document.createElement('p');
+          p.className = 'sched-empty';
+          p.textContent = '即將開放，敬請期待。';
+          box.appendChild(p);
+          return;
+        }
+        list.forEach(function (c) {
+          var a = document.createElement('a');
+          a.href = c.url.trim();
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.className = 'course-info-card';
+          a.textContent = c.label;
+          box.appendChild(a);
+        });
+      });
+      document.querySelectorAll('.lib-item.is-open .lib-panel').forEach(refreshPanelHeight);
+    }
+  } catch (e) { console.warn('course_cards 讀取失敗，使用內建內容', e); }
 </script>
 
 </body>

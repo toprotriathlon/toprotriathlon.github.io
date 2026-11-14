@@ -142,3 +142,70 @@ body{ background: #F3F4F6; }
   .admin-preview-col{ position: static; }
   .admin-preview-frame{ height: 70vh; }
 }
+
+/* ---- 行事曆／輪播圖編輯畫面 ---- */
+.admin-sched-row{
+  display: grid; grid-template-columns: 150px 110px minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  gap: 12px; align-items: end;
+  background: #fff; border: 1px solid #E5E7EB; border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 10px;
+}
+.admin-sched-row .form-row{ margin-bottom: 0; }
+@media (max-width: 900px){
+  .admin-sched-row{ grid-template-columns: 1fr 1fr; }
+  .admin-sched-title, .admin-sched-desc{ grid-column: 1 / -1; }
+}
+.admin-slide-card{
+  display: grid; grid-template-columns: 240px minmax(0, 1fr) auto; gap: 16px; align-items: start;
+  background: #fff; border: 1px solid #E5E7EB; border-radius: 10px;
+  padding: 14px; margin-bottom: 12px;
+}
+.admin-slide-thumb{ aspect-ratio: 5 / 3; overflow: hidden; border-radius: 8px; background: #E5E7EB; }
+.admin-slide-thumb img{ width: 100%; height: 100%; object-fit: cover; display: block; }
+.admin-slide-fields .form-row{ margin-bottom: 8px; }
+.admin-slide-fields input[type="range"]{ width: 100%; }
+.admin-slide-actions{ display: flex; flex-direction: column; gap: 6px; }
+.btn.is-disabled{ opacity: .5; pointer-events: none; }
+@media (max-width: 800px){
+  .admin-slide-card{ grid-template-columns: 1fr; }
+  .admin-slide-actions{ flex-direction: row; }
+}
+
+.admin-course-row{
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; gap: 12px; align-items: end;
+  border: 1px solid #E5E7EB; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: #fff;
+}
+.admin-course-row .form-row{ margin-bottom: 0; }
+.admin-course-row .admin-slide-actions{ flex-direction: row; }
+@media (max-width: 800px){ .admin-course-row{ grid-template-columns: 1fr; } }
+
+.admin-sched-url{ grid-column: 1 / -1; }
+
+.admin-add-admin{ display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
+.admin-add-admin .form-row{ margin-bottom: 0; flex: 1 1 260px; }
+.admin-admin-row{ display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #F3F4F6; font-size: 14px; }
+.admin-admin-row:first-of-type{ border-top: 0; }
+
+/* 左下角的齒輪（設定）按鈕 */
+.admin-settings{ position: relative; margin-top: 18px; padding-top: 14px; border-top: 1px solid #1F2937; }
+.admin-gear{
+  display: flex; align-items: center; gap: 8px; margin-top: 0; padding: 8px 10px;
+  background: none; border: none; border-radius: 8px; color: #9CA3AF; font-size: 13px;
+  font-family: inherit; cursor: pointer; width: 100%; text-align: left;
+}
+.admin-gear:hover{ background: #1F2937; color: #fff; }
+.admin-gear.is-active{ background: #374151; color: #fff; }
+
+/* 設定浮出選單（往上展開） */
+.admin-menu{
+  position: absolute; left: 0; right: 0; bottom: calc(100% - 6px);
+  background: #fff; color: #111827; border-radius: 10px; padding: 6px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.28); z-index: 30;
+}
+.admin-menu-user{ font-size: 11.5px; color: #6B7280; padding: 8px 10px 6px; border-bottom: 1px solid #F3F4F6; margin-bottom: 4px; word-break: break-all; }
+.admin-menu button{
+  display: block; width: 100%; text-align: left; background: none; border: 0; border-radius: 6px;
+  padding: 9px 10px; font-size: 13.5px; font-family: inherit; color: #111827; cursor: pointer;
+}
+.admin-menu button:hover{ background: #F3F4F6; }
+.admin-menu button.is-danger{ color: #B91C1C; }

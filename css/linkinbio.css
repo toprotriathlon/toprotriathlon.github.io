@@ -584,3 +584,5 @@
 .lib-carousel-dots button.is-active{ background: #fff; width: 18px; border-radius: 4px; }
 
 .lib-bio-rest{ margin-top: 0; }
+
+.sched-empty{ list-style: none; text-align: center; color: var(--slate); font-size: 13.5px; padding: 14px 0; }
