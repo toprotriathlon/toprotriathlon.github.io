@@ -43,12 +43,18 @@ export default {
   components: { MenuVisibilityToggle },
   props: { db: { type: Object, required: true } },
   data() {
-    return { GROUPS, items: [], menus: [], names: {}, deleted: [], removed: [], loading: true, saving: false, seeded: false, msg: "", err: "", dirty: false };
+    return { GROUPS, items: [], menus: [], names: {}, deleted: [], order: [], removed: [], loading: true, saving: false, seeded: false, msg: "", err: "", dirty: false };
   },
   computed: {
     // 內建的三個 + 後台自己新增的
     allGroups() {
-      return [...GROUPS.filter((g) => !this.deleted.includes(g.id)).map((g) => ({ ...g, label: (this.names[g.id] || "").trim() || g.label, defaultLabel: g.label, builtin: true })), ...this.menus]; // menus 直接用原物件，名稱欄位才能雙向綁定
+      const base = [...GROUPS.filter((g) => !this.deleted.includes(g.id)).map((g) => ({ ...g, label: (this.names[g.id] || "").trim() || g.label, defaultLabel: g.label, builtin: true })), ...this.menus]; // menus 直接用原物件，名稱欄位才能雙向綁定
+      // 依後台排好的順序排列；不在順序清單裡的（例如剛新增的）排在最後，維持原本相對順序
+      const idx = (g) => {
+        const i = this.order.indexOf(g.id);
+        return i < 0 ? this.order.length + base.indexOf(g) : i;
+      };
+      return base.slice().sort((a, b) => idx(a) - idx(b));
     },
   },
   async mounted() {
@@ -68,6 +74,7 @@ export default {
         const snap = await getDocs(collection(this.db, "course_cards"));
         const menuSnap = snap.docs.find((d) => d.id === MENUS_DOC);
         // 內建三個下拉選單改過的名稱：{ running: "...", custom: "...", swim: "..." }；沒改過就用預設
+        this.order = menuSnap && Array.isArray(menuSnap.data().order) ? [...menuSnap.data().order] : [];
         this.deleted = menuSnap && Array.isArray(menuSnap.data().deleted) ? [...menuSnap.data().deleted] : [];
         // 先放入預設名稱，輸入框才會直接顯示原有的標題文字，而不是空白
         this.names = { ...Object.fromEntries(GROUPS.map((g) => [g.id, g.label])), ...(menuSnap && menuSnap.data().labels ? menuSnap.data().labels : {}) };
@@ -100,6 +107,19 @@ export default {
         if (v && v !== g.label) out[g.id] = v;
       }
       return out;
+    },
+    // 目前畫面上的順序（含已刪除的內建選單，放在最後），存進資料庫給前台用
+    currentOrder() {
+      return [...this.allGroups.map((g) => g.id), ...this.deleted];
+    },
+    moveGroup(g, dir) {
+      const ids = this.allGroups.map((x) => x.id);
+      const i = ids.indexOf(g.id);
+      const j = i + dir;
+      if (j < 0 || j >= ids.length) return;
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+      this.order = [...ids, ...this.deleted];
+      this.dirty = true;
     },
     removeBuiltin(g) {
       const n = this.inGroup(g.id).length;
@@ -196,7 +216,7 @@ export default {
             batch.set(ref, { group: g.id, order: i, label: it.label.trim(), url: it.url.trim(), image: (it.image || "").trim(), status: it.status || "", pageOn: !!it.pageOn, pageTitle: (it.pageTitle || "").trim(), pageText: (it.pageText || "").trim(), ctaLabel: (it.ctaLabel || "").trim(), updatedAt: serverTimestamp() });
           });
         }
-        batch.set(doc(this.db, "course_cards", MENUS_DOC), { group: "_menus", list: this.menus.map((m) => ({ id: m.id, label: m.label.trim() })), labels: this.cleanNames(), deleted: this.deleted, updatedAt: serverTimestamp() });
+        batch.set(doc(this.db, "course_cards", MENUS_DOC), { group: "_menus", list: this.menus.map((m) => ({ id: m.id, label: m.label.trim() })), labels: this.cleanNames(), deleted: this.deleted, order: this.currentOrder(), updatedAt: serverTimestamp() });
         for (const id of this.removed) batch.delete(doc(this.db, "course_cards", id));
         await batch.commit();
         await this.load();
@@ -226,13 +246,15 @@ export default {
 
       <div v-if="loading">載入中…</div>
       <template v-else>
-        <div class="admin-panel" v-for="g in allGroups" :key="g.id">
+        <div class="admin-panel" v-for="(g, gi) in allGroups" :key="g.id">
           <div class="admin-panel-title admin-menu-name" v-if="g.builtin">
             <input type="text" v-model="names[g.id]" @input="dirty = true" :placeholder="g.defaultLabel" aria-label="下拉選單名稱" />
+            <span class="admin-group-move"><button type="button" class="admin-icon-btn" @click="moveGroup(g, -1)" :disabled="gi === 0" title="往上移">▲</button><button type="button" class="admin-icon-btn" @click="moveGroup(g, 1)" :disabled="gi === allGroups.length - 1" title="往下移">▼</button></span>
             <button type="button" class="btn btn-outline" @click="removeBuiltin(g)">刪除這個下拉選單</button>
           </div>
           <div class="admin-panel-title admin-menu-name" v-else>
             <input type="text" v-model="g.label" @input="dirty = true" placeholder="下拉選單名稱" aria-label="下拉選單名稱" />
+            <span class="admin-group-move"><button type="button" class="admin-icon-btn" @click="moveGroup(g, -1)" :disabled="gi === 0" title="往上移">▲</button><button type="button" class="admin-icon-btn" @click="moveGroup(g, 1)" :disabled="gi === allGroups.length - 1" title="往下移">▼</button></span>
             <button type="button" class="btn btn-outline" @click="removeMenu(g)">刪除這個下拉選單</button>
           </div>
           <menu-visibility-toggle :db="db" :menu-id="g.id" />

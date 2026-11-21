@@ -9,6 +9,19 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/linkinbio.css?v=24">
+<script>
+  // 在頁面還沒畫出來之前，先用上次記住的結果把「已隱藏／已刪除」的下拉選單藏起來，避免重新整理時先閃一下。
+  // 資料庫的最新結果回來後，由下方的 module script 校正並移除這段樣式。
+  try {
+    var hid = JSON.parse(localStorage.getItem('lib_hidden_menus') || '[]');
+    if (hid.length) {
+      var st = document.createElement('style');
+      st.id = 'libHiddenCss';
+      st.textContent = hid.map(function (t) { return '.lib-item:has([data-toggle="' + t + '"])'; }).join(',') + '{display:none}';
+      document.head.appendChild(st);
+    }
+  } catch (e) {}
+</script>
 </head>
 <body class="lib-body">
 
@@ -326,6 +339,15 @@
   };
   document.querySelectorAll('[data-toggle]').forEach(window.bindLibToggle);
 
+  // 後台「隱藏／刪除下拉選單」的設定要等資料庫讀回來才知道，會讓已隱藏的選單先閃一下才消失。
+  // 所以把上次讀到的結果記在瀏覽器（localStorage），頁面一載入就先套用，資料庫回來後再校正。
+  try {
+    JSON.parse(localStorage.getItem('lib_hidden_menus') || '[]').forEach(function (t) {
+      var b = document.querySelector('[data-toggle="' + t + '"]');
+      if (b) b.closest('.lib-item').style.display = 'none';
+    });
+  } catch (e) {}
+
   // 內容尺寸改變時（例如圖片載入完成、視窗縮放）重新量測已展開面板的高度
   window.addEventListener('resize', function () {
     document.querySelectorAll('.lib-item.is-open .lib-panel').forEach(refreshPanelHeight);
@@ -414,6 +436,13 @@
         menuToggleId[menu.id] = 'menu-' + menu.id;
       });
     });
+    // 後台排好的下拉選單順序（只含課程類的，排在「當月特別活動」之前）
+    cards.filter(function (x) { return x.group === '_menus'; }).forEach(function (m) {
+      (m.order || []).forEach(function (id) {
+        var btn = menuToggleId[id] && document.querySelector('[data-toggle="' + menuToggleId[id] + '"]');
+        if (btn) anchor.parentNode.insertBefore(btn.closest('.lib-item'), anchor);
+      });
+    });
     // 後台改過的內建下拉選單名稱
     cards.filter(function (x) { return x.group === '_menus'; }).forEach(function (m) {
       Object.keys(m.labels || {}).forEach(function (id) {
@@ -421,22 +450,23 @@
         if (t && String(m.labels[id]).trim()) t.textContent = String(m.labels[id]).trim();
       });
     });
-    // 後台刪除的內建下拉選單（只是不顯示；卡片資料已在後台一併刪除）
+    // 後台「刪除」的內建下拉選單與「隱藏」的下拉選單：都只是前台不顯示，統一收集
+    var hiddenToggles = [];
     cards.filter(function (x) { return x.group === '_menus'; }).forEach(function (m) {
-      (m.deleted || []).forEach(function (id) {
-        var btn = menuToggleId[id] && document.querySelector('[data-toggle="' + menuToggleId[id] + '"]');
-        if (btn) btn.closest('.lib-item').style.display = 'none';
-      });
+      (m.deleted || []).forEach(function (id) { if (menuToggleId[id]) hiddenToggles.push(menuToggleId[id]); });
     });
-    // 後台「隱藏這個下拉選單」的設定：存在 course_cards 裡 group 為 _menu 的文件
     cards.filter(function (x) { return x.group === '_menu'; }).forEach(function (m) {
       Object.keys(m.hidden || {}).forEach(function (id) {
-        if (!m.hidden[id]) return;
-        var item = menuToggleId[id];
-        var btn = item && document.querySelector('[data-toggle="' + item + '"]');
-        if (btn) btn.closest('.lib-item').style.display = 'none';
+        if (m.hidden[id] && menuToggleId[id]) hiddenToggles.push(menuToggleId[id]);
       });
     });
+    // 依資料庫的結果校正顯示狀態（包含把上次記住、但現在已重新顯示的選單放回來），並記起來給下次載入用
+    document.querySelectorAll('[data-toggle]').forEach(function (b) {
+      b.closest('.lib-item').style.display = hiddenToggles.indexOf(b.getAttribute('data-toggle')) >= 0 ? 'none' : '';
+    });
+    try { localStorage.setItem('lib_hidden_menus', JSON.stringify(hiddenToggles)); } catch (e) {}
+    var early = document.getElementById('libHiddenCss');
+    if (early) early.remove();   // 已由上面的 inline style 接手
     cards = cards.filter(function (x) { return x.group !== '_menu' && x.group !== '_menus'; });
     if (cards.length) {
       coursePairs.forEach(function (pair) {

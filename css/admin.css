@@ -298,3 +298,5 @@ body{ background: #F3F4F6; }
 .admin-add-menu{ width: 100%; justify-content: center; margin-top: 4px; }
 .admin-restore{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
 .admin-restore .btn{ padding: 6px 14px; font-size: 13px; }
+.admin-group-move{ display: inline-flex; gap: 6px; }
+.admin-icon-btn:disabled{ opacity: .35; cursor: not-allowed; }
