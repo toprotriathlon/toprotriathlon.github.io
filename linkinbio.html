@@ -8,7 +8,7 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/linkinbio.css?v=23">
+<link rel="stylesheet" href="css/linkinbio.css?v=24">
 </head>
 <body class="lib-body">
 
@@ -123,7 +123,7 @@
 
     <div class="lib-item">
       <button class="lib-link" type="button" data-toggle="monthly-events">
-        <span class="txt"><span class="t1">當月特別活動</span></span>
+        <span class="txt"><span class="t1">✦ 當月限定活動 ✦ </span></span>
         <span class="arrow">⌄</span>
       </button>
       <div class="lib-panel" id="monthly-events">
@@ -294,7 +294,8 @@
   renderCardScheduleList(document.getElementById('teamScheduleList'), teamScheduleData, 'team');
   renderCardScheduleList(document.getElementById('monthlyEventList'), monthlyEventData, 'monthly');
 
-  document.querySelectorAll('[data-toggle]').forEach(function (btn) {
+  // 下拉選單的展開／收合。後台新增的下拉選單是稍後才建立的，所以開放給後面的 module script 呼叫
+  window.bindLibToggle = function (btn) {
     btn.addEventListener('click', function () {
       var item = btn.closest('.lib-item');
       var panel = item.querySelector('.lib-panel');
@@ -326,7 +327,8 @@
         panel.style.maxHeight = '0px';
       }
     });
-  });
+  };
+  document.querySelectorAll('[data-toggle]').forEach(window.bindLibToggle);
 
   // 內容尺寸改變時（例如圖片載入完成、視窗縮放）重新量測已展開面板的高度
   window.addEventListener('resize', function () {
@@ -393,18 +395,55 @@
       return !/^[a-z][a-z0-9+.-]*:/i.test(u) && !/\s/.test(u);
     };
     var cards = await load('course_cards');
+    // 後台「新增下拉選單」建立的下拉選單：存在 course_cards 裡 group 為 _menus 的文件，排在游泳課程之後
+    var coursePairs = [['running', 'runningCourseCards'], ['custom', 'customCourseCards'], ['swim', 'swimCourseCards']];
+    var menuToggleId = { running: 'running-courses', custom: 'custom-courses', swim: 'swim-courses', monthly: 'monthly-events', team: 'team-schedule' };
+    var anchor = document.querySelector('[data-toggle="monthly-events"]').closest('.lib-item');
+    cards.filter(function (x) { return x.group === '_menus'; }).forEach(function (m) {
+      (m.list || []).forEach(function (menu) {
+        if (!menu || !menu.id || !menu.label) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'lib-item';
+        wrap.innerHTML =
+          '<button class="lib-link" type="button" data-toggle="menu-' + escHtml(menu.id) + '">' +
+            '<span class="txt"><span class="t1"></span></span><span class="arrow">⌄</span></button>' +
+          '<div class="lib-panel"><div class="sched-panel-inner">' +
+            '<div class="course-info-cards"><p class="sched-empty">即將開放，敬請期待。</p></div></div></div>';
+        wrap.querySelector('.t1').textContent = menu.label;
+        var cardsBox = wrap.querySelector('.course-info-cards');
+        cardsBox.id = 'menuCards-' + menu.id;
+        anchor.parentNode.insertBefore(wrap, anchor);
+        window.bindLibToggle(wrap.querySelector('[data-toggle]'));
+        coursePairs.push([menu.id, cardsBox.id]);
+        menuToggleId[menu.id] = 'menu-' + menu.id;
+      });
+    });
+    // 後台改過的內建下拉選單名稱
+    cards.filter(function (x) { return x.group === '_menus'; }).forEach(function (m) {
+      Object.keys(m.labels || {}).forEach(function (id) {
+        var t = menuToggleId[id] && document.querySelector('[data-toggle="' + menuToggleId[id] + '"] .t1');
+        if (t && String(m.labels[id]).trim()) t.textContent = String(m.labels[id]).trim();
+      });
+    });
+    // 後台刪除的內建下拉選單（只是不顯示；卡片資料已在後台一併刪除）
+    cards.filter(function (x) { return x.group === '_menus'; }).forEach(function (m) {
+      (m.deleted || []).forEach(function (id) {
+        var btn = menuToggleId[id] && document.querySelector('[data-toggle="' + menuToggleId[id] + '"]');
+        if (btn) btn.closest('.lib-item').style.display = 'none';
+      });
+    });
     // 後台「隱藏這個下拉選單」的設定：存在 course_cards 裡 group 為 _menu 的文件
     cards.filter(function (x) { return x.group === '_menu'; }).forEach(function (m) {
       Object.keys(m.hidden || {}).forEach(function (id) {
         if (!m.hidden[id]) return;
-        var item = { running: 'running-courses', custom: 'custom-courses', swim: 'swim-courses', monthly: 'monthly-events', team: 'team-schedule' }[id];
+        var item = menuToggleId[id];
         var btn = item && document.querySelector('[data-toggle="' + item + '"]');
         if (btn) btn.closest('.lib-item').style.display = 'none';
       });
     });
-    cards = cards.filter(function (x) { return x.group !== '_menu'; });
+    cards = cards.filter(function (x) { return x.group !== '_menu' && x.group !== '_menus'; });
     if (cards.length) {
-      [['running', 'runningCourseCards'], ['custom', 'customCourseCards'], ['swim', 'swimCourseCards']].forEach(function (pair) {
+      coursePairs.forEach(function (pair) {
         var box = document.getElementById(pair[1]);
         var list = cards
           .filter(function (x) { return x.group === pair[0] && x.label && (safeUrl(x.url) || x.pageOn); })

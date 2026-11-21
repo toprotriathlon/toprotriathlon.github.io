@@ -5,8 +5,11 @@ import { newId } from "../utils.js";
 import { cropImage } from "../components/imageCropper.js";
 import MenuVisibilityToggle, { MENU_DOC } from "../components/MenuVisibilityToggle.js";
 
+// 後台新增的下拉選單清單存在這份文件：{ group: "_menus", list: [{ id, label }] }（前台排在游泳課程之後）
+const MENUS_DOC = "_custom_menus";
+
 const GROUPS = [
-  { id: "running", label: "跑步課程" },
+  { id: "running", label: "專業跑步課程" },
   { id: "custom", label: "客製化課程" },
   { id: "swim", label: "游泳課程" },
 ];
@@ -40,7 +43,13 @@ export default {
   components: { MenuVisibilityToggle },
   props: { db: { type: Object, required: true } },
   data() {
-    return { items: [], removed: [], loading: true, saving: false, seeded: false, msg: "", err: "", dirty: false, GROUPS };
+    return { GROUPS, items: [], menus: [], names: {}, deleted: [], removed: [], loading: true, saving: false, seeded: false, msg: "", err: "", dirty: false };
+  },
+  computed: {
+    // 內建的三個 + 後台自己新增的
+    allGroups() {
+      return [...GROUPS.filter((g) => !this.deleted.includes(g.id)).map((g) => ({ ...g, label: (this.names[g.id] || "").trim() || g.label, defaultLabel: g.label, builtin: true })), ...this.menus]; // menus 直接用原物件，名稱欄位才能雙向綁定
+    },
   },
   async mounted() {
     await this.load();
@@ -57,8 +66,14 @@ export default {
       this.err = "";
       try {
         const snap = await getDocs(collection(this.db, "course_cards"));
+        const menuSnap = snap.docs.find((d) => d.id === MENUS_DOC);
+        // 內建三個下拉選單改過的名稱：{ running: "...", custom: "...", swim: "..." }；沒改過就用預設
+        this.deleted = menuSnap && Array.isArray(menuSnap.data().deleted) ? [...menuSnap.data().deleted] : [];
+        // 先放入預設名稱，輸入框才會直接顯示原有的標題文字，而不是空白
+        this.names = { ...Object.fromEntries(GROUPS.map((g) => [g.id, g.label])), ...(menuSnap && menuSnap.data().labels ? menuSnap.data().labels : {}) };
+        this.menus = menuSnap ? (menuSnap.data().list || []).filter((m) => m && m.id).map((m) => ({ id: m.id, label: m.label || "", builtin: false })) : [];
         this.items = snap.docs
-          .filter((d) => d.id !== MENU_DOC)
+          .filter((d) => d.id !== MENU_DOC && d.id !== MENUS_DOC)
           .map((d) => {
             const x = d.data();
             return { id: d.id, key: d.id, group: x.group, order: x.order ?? 0, label: x.label || "", url: x.url || "", image: x.image || "", status: x.status || "", pageOn: !!x.pageOn, pageTitle: x.pageTitle || "", pageText: x.pageText || "", ctaLabel: x.ctaLabel || "" };
@@ -76,6 +91,45 @@ export default {
         this.err = this.explain(e);
       }
       this.loading = false;
+    },
+    // 只留下跟預設名稱不同、且不是空白的名稱
+    cleanNames() {
+      const out = {};
+      for (const g of GROUPS) {
+        const v = (this.names[g.id] || "").trim();
+        if (v && v !== g.label) out[g.id] = v;
+      }
+      return out;
+    },
+    removeBuiltin(g) {
+      const n = this.inGroup(g.id).length;
+      if (!confirm(`確定要刪除下拉選單「${g.label}」嗎？${n ? `裡面的 ${n} 張卡片也會一起刪除。` : ""}（按下「儲存變更」後才會真的刪除，之後可以在最下方還原空的選單）`)) return;
+      this.inGroup(g.id).forEach((it) => {
+        if (it.id) this.removed.push(it.id);
+      });
+      this.items = this.items.filter((x) => x.group !== g.id);
+      this.deleted.push(g.id);
+      this.dirty = true;
+    },
+    restoreBuiltin(id) {
+      this.deleted = this.deleted.filter((x) => x !== id);
+      this.dirty = true;
+    },
+    addMenu() {
+      const name = (prompt("新下拉選單的名稱（會顯示在前台按鈕上）") || "").trim();
+      if (!name) return;
+      this.menus.push({ id: newId("m"), label: name, builtin: false });
+      this.dirty = true;
+    },
+    removeMenu(m) {
+      const n = this.inGroup(m.id).length;
+      if (!confirm(`確定要刪除下拉選單「${m.label}」嗎？${n ? `裡面的 ${n} 張卡片也會一起刪除。` : ""}（按下「儲存變更」後才會真的刪除）`)) return;
+      this.inGroup(m.id).forEach((it) => {
+        if (it.id) this.removed.push(it.id);
+      });
+      this.items = this.items.filter((x) => x.group !== m.id);
+      this.menus.splice(this.menus.indexOf(m), 1);
+      this.dirty = true;
     },
     add(g) {
       this.items.push({ id: null, key: newId("k"), group: g, label: "", url: "", image: "", status: "closed", pageOn: false, pageTitle: "", pageText: "", ctaLabel: "" });
@@ -119,6 +173,10 @@ export default {
     async save() {
       this.msg = "";
       this.err = "";
+      if (this.menus.some((m) => !m.label.trim())) {
+        this.err = "每個下拉選單都需要填「名稱」。";
+        return;
+      }
       for (const it of this.items) {
         if (!it.label.trim()) {
           this.err = "每個按鈕都需要填「名稱」。";
@@ -132,12 +190,13 @@ export default {
       this.saving = true;
       try {
         const batch = writeBatch(this.db);
-        for (const g of GROUPS) {
+        for (const g of this.allGroups) {
           this.inGroup(g.id).forEach((it, i) => {
             const ref = it.id ? doc(this.db, "course_cards", it.id) : doc(collection(this.db, "course_cards"));
             batch.set(ref, { group: g.id, order: i, label: it.label.trim(), url: it.url.trim(), image: (it.image || "").trim(), status: it.status || "", pageOn: !!it.pageOn, pageTitle: (it.pageTitle || "").trim(), pageText: (it.pageText || "").trim(), ctaLabel: (it.ctaLabel || "").trim(), updatedAt: serverTimestamp() });
           });
         }
+        batch.set(doc(this.db, "course_cards", MENUS_DOC), { group: "_menus", list: this.menus.map((m) => ({ id: m.id, label: m.label.trim() })), labels: this.cleanNames(), deleted: this.deleted, updatedAt: serverTimestamp() });
         for (const id of this.removed) batch.delete(doc(this.db, "course_cards", id));
         await batch.commit();
         await this.load();
@@ -167,8 +226,15 @@ export default {
 
       <div v-if="loading">載入中…</div>
       <template v-else>
-        <div class="admin-panel" v-for="g in GROUPS" :key="g.id">
-          <div class="admin-panel-title">{{ g.label }}</div>
+        <div class="admin-panel" v-for="g in allGroups" :key="g.id">
+          <div class="admin-panel-title admin-menu-name" v-if="g.builtin">
+            <input type="text" v-model="names[g.id]" @input="dirty = true" :placeholder="g.defaultLabel" aria-label="下拉選單名稱" />
+            <button type="button" class="btn btn-outline" @click="removeBuiltin(g)">刪除這個下拉選單</button>
+          </div>
+          <div class="admin-panel-title admin-menu-name" v-else>
+            <input type="text" v-model="g.label" @input="dirty = true" placeholder="下拉選單名稱" aria-label="下拉選單名稱" />
+            <button type="button" class="btn btn-outline" @click="removeMenu(g)">刪除這個下拉選單</button>
+          </div>
           <menu-visibility-toggle :db="db" :menu-id="g.id" />
           <p class="sub" v-if="!inGroup(g.id).length">這一區目前沒有卡片，公開頁面會顯示「即將開放」。</p>
           <div class="admin-course-row" v-for="it in inGroup(g.id)" :key="it.key">
@@ -224,6 +290,11 @@ export default {
             </div>
           </div>
           <button class="btn btn-outline" @click="add(g.id)">+ 新增卡片</button>
+        </div>
+        <button class="btn btn-outline admin-add-menu" @click="addMenu">+ 新增下拉選單</button>
+        <div class="admin-restore" v-if="deleted.length">
+          <span class="sub">已刪除的下拉選單：</span>
+          <button type="button" class="btn btn-outline" v-for="g in GROUPS.filter((x) => deleted.includes(x.id))" :key="g.id" @click="restoreBuiltin(g.id)">還原「{{ g.label }}」</button>
         </div>
       </template>
     </div>

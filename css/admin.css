@@ -291,3 +291,10 @@ body{ background: #F3F4F6; }
 .form-row label.admin-check{ display: flex; align-items: flex-start; gap: 8px; font-weight: 600; cursor: pointer; margin-bottom: 0; }
 .admin-check input{ width: auto; margin-top: 3px; flex-shrink: 0; }
 .admin-course-row textarea{ width: 100%; font: inherit; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; resize: vertical; }
+
+.admin-menu-name{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.admin-menu-name input{ flex: 1 1 200px; min-width: 0; padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font: inherit; font-weight: 700; }
+.admin-menu-name .btn{ padding: 6px 14px; font-size: 13px; }
+.admin-add-menu{ width: 100%; justify-content: center; margin-top: 4px; }
+.admin-restore{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.admin-restore .btn{ padding: 6px 14px; font-size: 13px; }

@@ -125,7 +125,8 @@
 
 .lib-bio{
   text-align: center;
-  color: var(--navy);
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.45); /* 背景圖有亮有暗，加一點陰影讓白字在任何位置都讀得到 */
   font-size: 14.5px;
   line-height: 1.75;
   margin: 18px auto 0;
