@@ -18,10 +18,11 @@
 .lib-body{
   overflow-x: clip;
   /* Link-in-bio 微站專屬配色與字體，僅作用於 .lib-body 內的元素，不影響主站其他頁面 */
-  --navy: #0D0D0D;        /* Jet Black — 主要文字／按鈕 */
-  --coral: #A58CF4;       /* Lavender — 強調色／hover 底色 */
-  --coral-dark: #433075;  /* Deep Purple — 次要強調（日期、eyebrow） */
-  --aqua: #A58CF4;        /* Lavender */
+  /* 配色取自背景圖 assets/bg.webp：深藍灰、鋼藍、淺灰藍 */
+  --navy: #1B2433;        /* 深藍灰（背景暗部）— 主要文字／按鈕 */
+  --coral: #C9D3E6;       /* 淺灰藍（背景亮部）— 強調色／hover 底色 */
+  --coral-dark: #4A6485;  /* 鋼藍（背景中段）— 日期、eyebrow */
+  --aqua: #C9D3E6;        /* 淺灰藍 */
   --cream: #FFFFFF;       /* 卡片底色 */
   --white: #FFFFFF;
   --slate: #6E6E76;       /* 中性灰，用於次要文字 */
@@ -30,19 +31,19 @@
   --font-num: 'Barlow', sans-serif;
 
   min-height: 100vh;
-  /* 依你提供的色卡順序（Soft White → Lavender → Deep Purple → Jet Black）做整頁柔和漸層，
-     多加中間過渡色階讓色相轉換更平滑，從頁面最頂到最底一次掃過，不重複貼圖 */
-  background: linear-gradient(170deg,
-    #FAFAFA 0%,
-    #D9CDF6 22%,
-    #A58CF4 42%,
-    #6B4FA0 62%,
-    #433075 80%,
-    #0D0D0D 100%);
+  /* 底色為背景圖下半部的深色，圖片載入前與圖外都不會露白；背景圖本身見下方 .lib-body::before */
+  background: #3d5069;
   padding: 48px 20px 40px;
   display: flex;
   justify-content: center;
 }
+/* 背景圖（assets/bg.webp）：用固定定位的偽元素而不是 background-attachment: fixed，
+   因為 iOS Safari 不支援後者，會把圖片拉成整個頁面高度、嚴重放大變形 */
+.lib-body::before{
+  content: ""; position: fixed; inset: 0; z-index: -1;
+  background: url('../assets/bg.webp') center / cover no-repeat;
+}
+
 .lib-card{
   width: 100%;
   max-width: 620px;
@@ -231,7 +232,7 @@
   .sched-card-right{ flex-direction: row-reverse; align-items: center; width: 100%; justify-content: space-between; }
 }
 
-.course-info-cards{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.course-info-cards{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
 .course-info-card{
   display: block;
   background: var(--white);
@@ -246,7 +247,7 @@
   text-align: center;
   transition: background .2s ease, color .2s ease, transform .2s ease;
 }
-.course-info-card:hover{ background: var(--coral); border-color: var(--navy); color: var(--navy); transform: translateY(-2px); }
+.course-info-card:hover{ background: #000; border-color: #000; color: #fff; transform: translateY(-2px); }
 
 .lib-links{
   display: flex;
@@ -263,13 +264,13 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  background: var(--white);
+  background: #CBD5E8; /* 取自背景圖亮部的淺灰藍 */
   border: none;
   padding: 16px 18px;
   transition: background .2s ease;
   text-align: left;
 }
-.lib-item:hover .lib-link{ background: var(--coral); }
+.lib-item:hover .lib-link{ background: #DCE4F2; }
 .lib-link-standalone{
   border-radius: 100px;
   background: var(--navy);
@@ -295,10 +296,6 @@
 .lib-link-standalone .arrow{ color: var(--white); opacity: 1; }
 .lib-link-standalone:hover .txt .t1,
 .lib-link-standalone:hover .arrow{ color: var(--navy); }
-/* 展開中的區塊維持 Deep Purple，跟 hover 的 Lavender 區隔開，讓「目前打開哪一區」一眼可辨 */
-.lib-item.is-open .lib-link{ background: var(--coral-dark); }
-.lib-item.is-open .lib-link .txt .t1,
-.lib-item.is-open .lib-link .arrow{ color: var(--white); opacity: 1; }
 .lib-panel{
   max-height: 0;
   overflow: hidden;
@@ -567,10 +564,13 @@
   margin-bottom: 22px;
 }
 .event-cta{ width: 100%; justify-content: center; }
+/* 報名按鈕：平常是深色，滑鼠移上去變淺（跟預設的「淺 → 深」相反） */
+.event-cta.btn-primary{ background: var(--navy); color: var(--white); box-shadow: 0 10px 24px rgba(0,0,0,0.28); }
+.event-cta.btn-primary:hover{ background: var(--coral); color: var(--navy); box-shadow: 0 14px 30px rgba(0,0,0,0.22); }
 
 /* 輪播照片：比例固定 5:3（寬:高） */
-.lib-carousel{ position: relative; aspect-ratio: 5 / 3; width: min(100vw, 620px); margin: 14px 0 14px calc(50% - min(100vw, 620px) / 2); overflow: hidden; }
-/* 手機上左右貼齊螢幕邊緣（滿版），桌機上與頁面內容同寬（上限 620px），沒有圓角與外框 */
+.lib-carousel{ position: relative; aspect-ratio: 5 / 3; width: 100%; margin: 14px 0; overflow: hidden; border-radius: 20px; }
+/* 與頁面內容同寬（手機上左右跟其他區塊對齊），四個角為圓角 */
 .lib-carousel-track{
   position: absolute; inset: 0;
   display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none;
@@ -586,3 +586,27 @@
 .lib-bio-rest{ margin-top: 0; }
 
 .sched-empty{ list-style: none; text-align: center; color: var(--slate); font-size: 13.5px; padding: 14px 0; }
+
+/* 有封面圖的課程卡片：圖片＋右上角狀態標籤＋標題 */
+.course-info-card.has-cover{ padding: 12px 12px 14px; border-radius: 20px; border-color: transparent; font-weight: 500; font-size: 14px; }
+.course-cover{ aspect-ratio: 16 / 9; background: #e5e5e5; position: relative; display: block; border-radius: 12px; overflow: hidden; margin-bottom: 12px; }
+.course-cover img{ display: block; width: 100%; height: 100%; object-fit: cover; }
+.course-title{ display: block; line-height: 1.5; }
+.course-badge{
+  position: absolute; top: 8px; right: 8px;
+  padding: 6px 14px; border-radius: 999px;
+  font-size: 14px; font-weight: 700; line-height: 1.2;
+  border: 2px solid #fff;
+}
+.course-badge-open{ background: #7BB4D8; color: #fff; }
+.course-badge-full{ background: #F0F0F0; color: #333; border-color: #555; }
+.course-badge-closed{ background: rgba(60,60,60,.85); color: #fff; }
+
+.course-note{ margin: 12px 0 4px; text-align: center; font-size: 12px; color: #8a8a93; line-height: 1.5; }
+
+/* 課程內頁（course-detail.html）：一張圖、一段文字、一顆報名按鈕 */
+.course-detail{ padding: 14px; }
+.course-detail-img{ display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 12px; }
+.course-detail-text{ margin: 16px 4px; font-size: 15px; line-height: 1.8; color: var(--navy); white-space: pre-line; overflow-wrap: anywhere; }
+.course-detail .event-cta{ margin-top: 4px; }
+.course-detail-title{ margin: 4px 4px 14px; font-size: 20px; line-height: 1.4; font-weight: 800; color: var(--navy); overflow-wrap: anywhere; }

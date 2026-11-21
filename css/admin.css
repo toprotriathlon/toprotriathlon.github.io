@@ -175,9 +175,16 @@ body{ background: #F3F4F6; }
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; gap: 12px; align-items: end;
   border: 1px solid #E5E7EB; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; background: #fff;
 }
-.admin-course-row .form-row{ margin-bottom: 0; }
+.admin-course-row .form-row{ margin-bottom: 0; min-width: 0; }
 .admin-course-row .admin-slide-actions{ flex-direction: row; }
-@media (max-width: 800px){ .admin-course-row{ grid-template-columns: 1fr; } }
+/* 名稱、連結在第一列，封面與狀態在第二列，操作鈕固定在右上 */
+.admin-course-row .admin-slide-actions{ grid-column: 3; grid-row: 1; }
+.admin-course-row .form-row:nth-of-type(n+3){ grid-column: 1 / 3; }
+@media (max-width: 800px){
+  .admin-course-row{ grid-template-columns: 1fr; }
+  .admin-course-row .admin-slide-actions{ grid-column: 1; grid-row: auto; }
+  .admin-course-row .form-row:nth-of-type(n+3){ grid-column: 1; }
+}
 
 .admin-sched-url{ grid-column: 1 / -1; }
 
@@ -237,3 +244,50 @@ body{ background: #F3F4F6; }
   .admin-panel{ padding: 14px; }
   .admin-block-head{ flex-wrap: wrap; }
 }
+
+.admin-cover-edit{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.admin-cover-thumb{ width: 96px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+.admin-cover-btn{ cursor: pointer; padding: 8px 14px; font-size: 13px; }
+.admin-status-toggle{ display: inline-flex; border: 1.5px solid var(--navy); border-radius: 999px; overflow: hidden; }
+.admin-status-toggle button{ padding: 8px 16px; border: 0; background: transparent; color: var(--navy); font: inherit; font-size: 13px; cursor: pointer; }
+.admin-status-toggle button + button{ border-left: 1.5px solid var(--navy); }
+.admin-status-toggle button.on{ background: var(--navy); color: #fff; }
+
+.admin-menu-toggle{ display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 6px 0 10px; }
+.admin-menu-toggle .btn{ padding: 6px 14px; font-size: 13px; }
+.admin-menu-state{ font-size: 13px; font-weight: 700; color: #1a7f37; }
+.admin-menu-state.off{ color: #b42318; }
+.admin-menu-err{ font-size: 13px; color: #b42318; }
+
+@media (max-width: 600px){
+  .admin-status-toggle{ display: flex; width: 100%; }
+  .admin-status-toggle button{ flex: 1; padding: 10px 6px; }
+  .admin-cover-edit .btn{ flex: 1 1 auto; text-align: center; }
+  .admin-menu-toggle{ display: flex; width: 100%; }
+  .admin-menu-toggle .btn{ flex: 1 1 100%; padding: 10px 14px; }
+}
+
+/* 「更換照片」是 <label>，會被 .form-row label 的深色文字蓋過 hover 的白字，這裡加強優先序 */
+.form-row label.admin-cover-btn{ display: inline-flex; align-items: center; margin-bottom: 0; color: var(--navy); }
+.form-row label.admin-cover-btn:hover{ color: #fff; }
+
+/* ---- 照片裁切視窗 ---- */
+.crop-overlay{ position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.crop-dialog{ width: min(100%, 620px); max-height: 100%; overflow: auto; background: #fff; border-radius: 14px; padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+.crop-title{ font-weight: 700; font-size: 16px; margin-bottom: 12px; }
+.crop-stage{ position: relative; width: 100%; overflow: hidden; border-radius: 10px; background: #111; touch-action: none; cursor: grab; user-select: none; }
+.crop-stage:active{ cursor: grabbing; }
+.crop-img{ position: absolute; left: 0; top: 0; max-width: none; transform-origin: 0 0; pointer-events: none; -webkit-user-drag: none; }
+.crop-stage::after{ content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: 10px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.9); }
+.crop-hint{ font-size: 12.5px; color: #6B7280; margin: 10px 0; line-height: 1.5; }
+.crop-zoom{ display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: #6B7280; }
+.crop-zoom input{ flex: 1; min-width: 0; }
+.crop-actions{ display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+@media (max-width: 480px){
+  .crop-dialog{ padding: 14px; }
+  .crop-actions .btn{ flex: 1; justify-content: center; }
+}
+
+.form-row label.admin-check{ display: flex; align-items: flex-start; gap: 8px; font-weight: 600; cursor: pointer; margin-bottom: 0; }
+.admin-check input{ width: auto; margin-top: 3px; flex-shrink: 0; }
+.admin-course-row textarea{ width: 100%; font: inherit; padding: 10px 12px; border: 1px solid #D1D5DB; border-radius: 8px; resize: vertical; }

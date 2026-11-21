@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>課程介紹｜TO PRO 桃園鐵人三項俱樂部</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/linkinbio.css?v=23">
+</head>
+<body class="lib-body">
+
+<div class="lib-card">
+  <a href="linkinbio.html" class="event-back">‹ 返回 TO PRO 連結總覽</a>
+
+  <!-- 課程內頁：標題、一張圖、一段文字、一顆報名按鈕。內容由後台「課程連結」的卡片設定，網址 ?id= 是該卡片的文件 ID -->
+  <div class="page-panel course-detail" id="courseDetail">
+    <p class="sched-empty">載入中…</p>
+  </div>
+</div>
+
+<script type="module">
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+  import { db } from "./js/firebase-config.js";
+
+  var box = document.getElementById('courseDetail');
+  function msg(t) { box.innerHTML = ''; var p = document.createElement('p'); p.className = 'sched-empty'; p.textContent = t; box.appendChild(p); }
+
+  // 只接受 http(s) 網址或網站內的相對路徑，擋掉 javascript: 之類的
+  function safeUrl(u) {
+    u = String(u || '').trim();
+    if (!u) return false;
+    if (/^https?:\/\/\S+$/i.test(u)) return true;
+    return !/^[a-z][a-z0-9+.-]*:/i.test(u) && !/\s/.test(u);
+  }
+
+  try {
+    var id = new URLSearchParams(location.search).get('id');
+    if (!id) { msg('找不到這個課程。'); }
+    else {
+      var snap = await getDoc(doc(db, 'course_cards', id));
+      var c = snap.exists() ? snap.data() : null;
+      if (!c || !c.pageOn) { msg('找不到這個課程。'); }
+      else {
+        document.title = (c.label || '課程介紹') + '｜TO PRO 桃園鐵人三項俱樂部';
+        box.innerHTML = '';
+        var ttl = (c.pageTitle || c.label || '').trim();
+        if (ttl) {
+          var h = document.createElement('h1');
+          h.className = 'course-detail-title';
+          h.textContent = ttl;
+          box.appendChild(h);
+        }
+        var imgOk = c.image && (safeUrl(c.image) || /^data:image\/(jpeg|png|webp);base64,/i.test(c.image));
+        if (imgOk) {
+          var im = document.createElement('img');
+          im.className = 'course-detail-img';
+          im.src = c.image.trim();
+          im.alt = c.label || '';
+          box.appendChild(im);
+        }
+        if (c.pageText) {
+          var t = document.createElement('p');
+          t.className = 'course-detail-text';
+          t.textContent = c.pageText;   // textContent 會把內容當純文字，換行由 CSS 的 pre-line 呈現
+          box.appendChild(t);
+        }
+        if (safeUrl(c.url)) {
+          var a = document.createElement('a');
+          a.className = 'btn btn-primary event-cta';
+          a.href = c.url.trim();
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.textContent = c.ctaLabel || '我要報名';
+          box.appendChild(a);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('course_cards 讀取失敗', e);
+    msg('載入失敗，請稍後再試。');
+  }
+</script>
+
+<script src="js/line-chat.js"></script>
+</body>
+</html>

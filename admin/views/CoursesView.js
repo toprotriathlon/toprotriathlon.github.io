@@ -1,20 +1,29 @@
-// 後台「課程連結」：編輯 linkinbio 頁面「跑步課程」「游泳課程」兩個下拉選單裡的按鈕。
+// 後台「課程連結」：編輯 linkinbio 頁面「跑步課程」「客製化課程」「游泳課程」兩個下拉選單裡的按鈕。
 // 每個按鈕有名稱和連結（通常是 Google 表單的分享連結）。資料存在 Firestore 的 course_cards。
 import { collection, getDocs, doc, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import { newId } from "../utils.js";
+import { cropImage } from "../components/imageCropper.js";
+import MenuVisibilityToggle, { MENU_DOC } from "../components/MenuVisibilityToggle.js";
 
 const GROUPS = [
   { id: "running", label: "跑步課程" },
+  { id: "custom", label: "客製化課程" },
   { id: "swim", label: "游泳課程" },
 ];
 
-// 資料庫還是空的時候，後台直接顯示這 4 個目前網站上的按鈕
+// 資料庫還是空的時候，後台直接顯示目前網站上的按鈕
 const SAMPLES = [
-  { group: "running", label: "新一期跑班", url: "running-plan.html" },
-  { group: "running", label: "客製化課程", url: "event-page.html?slug=customize-running-camp" },
-  { group: "swim", label: "新一期游泳班", url: "event-page.html?slug=swim-camp" },
-  { group: "swim", label: "客製化課程", url: "custom-course.html" },
+  { group: "running", label: "跑者專項肌力訓練(課程可分開報名)", url: "running-plan.html", image: "assets/courses/run-strength.jpg", status: "open" },
+  { group: "running", label: "Vol. 19 一四常訓跑班·臺北", url: "running-plan.html", image: "assets/courses/run-taipei-vol19.jpg", status: "full" },
+  { group: "running", label: "Vol. 02 五常訓跑班·板橋", url: "running-plan.html", image: "assets/courses/run-banqiao-vol02.jpg", status: "full" },
+  { group: "custom", label: "跑步課程", url: "event-page.html?slug=customize-running-camp" },
+  { group: "custom", label: "游泳課程", url: "custom-course.html" },
+  { group: "swim", label: "新一期游泳班", url: "event-page.html?slug=swim-camp", image: "assets/courses/swim-camp.jpg", status: "open" },
 ];
+
+const OUT_W = 800; // 封面圖固定 16:9 橫式，跟前台顯示的比例一致
+const OUT_H = 450;
+const MAX_DATA_URL = 300 * 1024; // 每張封面上限，Firestore 單一文件上限是 1MB
 
 const RULES_HINT =
   "沒有權限讀寫資料。請先到 Firebase 主控台更新 Firestore 規則，開放 course_cards（作法見 docs/campaign-page-system-spec.md 第 5 節）。";
@@ -28,6 +37,7 @@ function validUrl(u) {
 }
 
 export default {
+  components: { MenuVisibilityToggle },
   props: { db: { type: Object, required: true } },
   data() {
     return { items: [], removed: [], loading: true, saving: false, seeded: false, msg: "", err: "", dirty: false, GROUPS };
@@ -48,9 +58,10 @@ export default {
       try {
         const snap = await getDocs(collection(this.db, "course_cards"));
         this.items = snap.docs
+          .filter((d) => d.id !== MENU_DOC)
           .map((d) => {
             const x = d.data();
-            return { id: d.id, key: d.id, group: x.group, order: x.order ?? 0, label: x.label || "", url: x.url || "" };
+            return { id: d.id, key: d.id, group: x.group, order: x.order ?? 0, label: x.label || "", url: x.url || "", image: x.image || "", status: x.status || "", pageOn: !!x.pageOn, pageTitle: x.pageTitle || "", pageText: x.pageText || "", ctaLabel: x.ctaLabel || "" };
           })
           .sort((a, b) => a.order - b.order);
         this.removed = [];
@@ -67,7 +78,7 @@ export default {
       this.loading = false;
     },
     add(g) {
-      this.items.push({ id: null, key: newId("k"), group: g, label: "", url: "" });
+      this.items.push({ id: null, key: newId("k"), group: g, label: "", url: "", image: "", status: "closed", pageOn: false, pageTitle: "", pageText: "", ctaLabel: "" });
       this.dirty = true;
     },
     remove(item) {
@@ -83,6 +94,26 @@ export default {
       const a = this.items.indexOf(item);
       const b = this.items.indexOf(target);
       [this.items[a], this.items[b]] = [this.items[b], this.items[a]];
+      this.dirty = true;
+    },
+    async pickImage(item, e) {
+      const file = (e.target.files || [])[0];
+      e.target.value = "";
+      if (!file) return;
+      this.err = "";
+      try {
+        // 跳出裁切視窗，讓使用者自己決定保留照片的哪一塊；按取消就不更動
+        const out = await cropImage(file, { outW: OUT_W, outH: OUT_H, maxBytes: MAX_DATA_URL });
+        if (out) {
+          item.image = out;
+          this.dirty = true;
+        }
+      } catch (_) {
+        this.err = `「${file.name}」無法讀取，請改用 JPG 或 PNG。`;
+      }
+    },
+    setStatus(item, v) {
+      item.status = v;
       this.dirty = true;
     },
     async save() {
@@ -104,7 +135,7 @@ export default {
         for (const g of GROUPS) {
           this.inGroup(g.id).forEach((it, i) => {
             const ref = it.id ? doc(this.db, "course_cards", it.id) : doc(collection(this.db, "course_cards"));
-            batch.set(ref, { group: g.id, order: i, label: it.label.trim(), url: it.url.trim(), updatedAt: serverTimestamp() });
+            batch.set(ref, { group: g.id, order: i, label: it.label.trim(), url: it.url.trim(), image: (it.image || "").trim(), status: it.status || "", pageOn: !!it.pageOn, pageTitle: (it.pageTitle || "").trim(), pageText: (it.pageText || "").trim(), ctaLabel: (it.ctaLabel || "").trim(), updatedAt: serverTimestamp() });
           });
         }
         for (const id of this.removed) batch.delete(doc(this.db, "course_cards", id));
@@ -122,7 +153,7 @@ export default {
       <div class="admin-editor-head">
         <div>
           <h2>課程連結</h2>
-          <p class="sub">編輯 linkinbio 頁面「跑步課程」「游泳課程」下拉選單裡的按鈕。連結請貼 Google 表單的分享連結（例如 https://forms.gle/xxxx），訪客按下去會在新分頁開啟。</p>
+          <p class="sub">編輯 linkinbio 頁面「跑步課程」「客製化課程」「游泳課程」下拉選單裡的按鈕。連結請貼 Google 表單的分享連結（例如 https://forms.gle/xxxx），訪客按下去會在新分頁開啟。</p>
         </div>
         <div class="admin-toolbar">
           <button class="btn btn-primary" @click="save" :disabled="saving || loading || !dirty">{{ saving ? '儲存中…' : '儲存變更' }}</button>
@@ -138,23 +169,61 @@ export default {
       <template v-else>
         <div class="admin-panel" v-for="g in GROUPS" :key="g.id">
           <div class="admin-panel-title">{{ g.label }}</div>
-          <p class="sub" v-if="!inGroup(g.id).length">這一區目前沒有按鈕，公開頁面會顯示「即將開放」。</p>
+          <menu-visibility-toggle :db="db" :menu-id="g.id" />
+          <p class="sub" v-if="!inGroup(g.id).length">這一區目前沒有卡片，公開頁面會顯示「即將開放」。</p>
           <div class="admin-course-row" v-for="it in inGroup(g.id)" :key="it.key">
             <div class="form-row">
               <label>按鈕名稱</label>
               <input type="text" v-model="it.label" @input="dirty = true" placeholder="例如：新一期跑班" />
             </div>
             <div class="form-row">
-              <label>連結（Google 表單網址）</label>
+              <label>報名連結（Google 表單網址）</label>
               <input type="text" v-model="it.url" @input="dirty = true" placeholder="https://forms.gle/..." />
             </div>
+            <div class="form-row">
+              <label>封面照片（選填，選好照片後可自己拖曳、縮放選擇要保留的範圍）</label>
+              <div class="admin-cover-edit">
+                <img v-if="it.image" :src="it.image" alt="" class="admin-cover-thumb" />
+                <label class="btn btn-outline admin-cover-btn">
+                  {{ it.image ? '更換照片' : '上傳照片' }}
+                  <input type="file" accept="image/*" hidden @change="pickImage(it, $event)" />
+                </label>
+                <button v-if="it.image" type="button" class="btn btn-outline admin-cover-btn" @click="it.image = ''; dirty = true">移除照片</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <label>狀態標籤</label>
+              <div class="admin-status-toggle">
+                <button type="button" :class="{ on: it.status === 'open' }" @click="setStatus(it, 'open')">報名中</button>
+                <button type="button" :class="{ on: it.status === 'full' }" @click="setStatus(it, 'full')">已額滿</button>
+                <button type="button" :class="{ on: !it.status || it.status === 'closed' }" @click="setStatus(it, 'closed')">未開放</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <label class="admin-check"><input type="checkbox" v-model="it.pageOn" @change="dirty = true" /> 點卡片開啟站內「課程內頁」（一張圖＋一段文字＋報名按鈕）</label>
+            </div>
+            <template v-if="it.pageOn">
+              <div class="form-row">
+                <label>內頁標題（顯示在圖片上方，不填就用上面的「按鈕名稱」）</label>
+                <input type="text" v-model="it.pageTitle" @input="dirty = true" :placeholder="it.label || '例如：Vol. 19 一四常訓跑班'" />
+              </div>
+              <div class="form-row">
+                <label>內頁文字（按 Enter 換行）</label>
+                <textarea rows="6" v-model="it.pageText" @input="dirty = true" placeholder="直接輸入課程介紹文字…"></textarea>
+                <p class="sub" v-if="!it.image">內頁的圖片就是上面的「封面照片」，請先上傳。</p>
+              </div>
+              <div class="form-row">
+                <label>報名按鈕文字</label>
+                <input type="text" v-model="it.ctaLabel" @input="dirty = true" placeholder="我要報名" />
+              </div>
+            </template>
             <div class="admin-slide-actions">
               <button class="admin-icon-btn" @click="move(it, -1)" title="上移">▲</button>
               <button class="admin-icon-btn" @click="move(it, 1)" title="下移">▼</button>
               <button class="admin-icon-btn" @click="remove(it)" title="刪除">🗑</button>
             </div>
           </div>
-          <button class="btn btn-outline" @click="add(g.id)">+ 新增按鈕</button>
+          <button class="btn btn-outline" @click="add(g.id)">+ 新增卡片</button>
         </div>
       </template>
     </div>

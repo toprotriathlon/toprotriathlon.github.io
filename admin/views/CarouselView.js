@@ -3,6 +3,7 @@
 // 這樣不需要啟用 Firebase Storage（Storage 需要付費方案）。
 // 上傳時一律從中心裁成固定尺寸 1360×816（5:3，跟公開頁面的輪播框一致），後台沒有其他可調整的設定。
 import { collection, getDocs, doc, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { cropImage } from "../components/imageCropper.js";
 import { newId } from "../utils.js";
 
 const MAX_SLIDES = 8;
@@ -90,7 +91,9 @@ export default {
           break;
         }
         try {
-          const image = await toDataUrl(file);
+          // 一張一張跳出裁切視窗；按取消就略過這張
+          const image = await cropImage(file, { outW: OUT_W, outH: OUT_H, maxBytes: MAX_DATA_URL, title: "選擇要保留的範圍（" + file.name + "）" });
+          if (!image) continue;
           this.slides.push({ id: null, key: newId("c"), image });
           this.dirty = true;
         } catch (_) {
@@ -141,7 +144,7 @@ export default {
       <div class="admin-editor-head">
         <div>
           <h2>輪播圖</h2>
-          <p class="sub">顯示在 linkinbio 頁面最上方，依上傳順序每 4 秒自動切換。只要上傳照片即可，系統會自動從中心裁成固定尺寸（橫向 5:3），建議上傳橫向照片，人物放在畫面中間。</p>
+          <p class="sub">顯示在 linkinbio 頁面最上方，依上傳順序每 4 秒自動切換。上傳照片後會跳出裁切視窗，可自己拖曳、縮放選擇要保留的範圍（固定橫向 5:3，跟前台一致）。</p>
         </div>
         <div class="admin-toolbar">
           <label class="btn btn-outline" :class="{ 'is-disabled': working || slides.length >= MAX_SLIDES }" style="cursor:pointer;">

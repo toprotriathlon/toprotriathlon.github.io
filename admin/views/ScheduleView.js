@@ -3,6 +3,7 @@
 // 公開頁 linkinbio.html 讀同一個 collection 來顯示。
 import { collection, getDocs, query, where, doc, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import { newId } from "../utils.js";
+import MenuVisibilityToggle from "../components/MenuVisibilityToggle.js";
 
 // 第一次使用、資料庫還是空的時候，後台直接顯示目前網站上正在顯示的內容
 const SAMPLES = {
@@ -32,6 +33,7 @@ function byDateTime(a, b) {
 }
 
 export default {
+  components: { MenuVisibilityToggle },
   props: {
     db: { type: Object, required: true },
     group: { type: String, required: true },
@@ -129,6 +131,7 @@ export default {
         <div>
           <h2>{{ title }}</h2>
           <p class="sub">顯示在 linkinbio 頁面的「{{ title }}」下拉選單，依日期排序。</p>
+          <menu-visibility-toggle :db="db" :menu-id="group" />
         </div>
         <div class="admin-toolbar">
           <button class="btn btn-outline" @click="add" :disabled="loading">+ 新增一筆</button>

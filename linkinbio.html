@@ -8,7 +8,7 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/linkinbio.css?v=3">
+<link rel="stylesheet" href="css/linkinbio.css?v=23">
 </head>
 <body class="lib-body">
 
@@ -65,15 +65,26 @@
 
     <div class="lib-item">
       <button class="lib-link" type="button" data-toggle="running-courses">
-        <span class="txt"><span class="t1">跑步課程</span></span>
+        <span class="txt"><span class="t1">專業跑步課程</span></span>
         <span class="arrow">⌄</span>
       </button>
       <div class="lib-panel" id="running-courses">
         <div class="sched-panel-inner">
           <div class="course-info-cards" id="runningCourseCards">
-            <a href="running-plan.html" target="_blank" rel="noopener" class="course-info-card">新一期跑班</a>
-            <a href="event-page.html?slug=customize-running-camp" target="_blank" rel="noopener" class="course-info-card">客製化課程</a>
+            <a href="running-plan.html" target="_blank" rel="noopener" class="course-info-card has-cover">
+              <span class="course-cover"><img src="assets/courses/run-strength.jpg" alt="跑者專項肌力訓練(課程可分開報名)" loading="lazy"><span class="course-badge course-badge-open">報名中</span></span>
+              <span class="course-title">跑者專項肌力訓練<br>(課程可分開報名)</span>
+            </a>
+            <a href="running-plan.html" target="_blank" rel="noopener" class="course-info-card has-cover">
+              <span class="course-cover"><img src="assets/courses/run-taipei-vol19.jpg" alt="Vol. 19 一四常訓跑班·臺北" loading="lazy"><span class="course-badge course-badge-full">已額滿</span></span>
+              <span class="course-title">Vol. 19 一四常訓跑班·臺北</span>
+            </a>
+            <a href="running-plan.html" target="_blank" rel="noopener" class="course-info-card has-cover">
+              <span class="course-cover"><img src="assets/courses/run-banqiao-vol02.jpg" alt="Vol. 02 五常訓跑班·板橋" loading="lazy"><span class="course-badge course-badge-full">已額滿</span></span>
+              <span class="course-title">Vol. 02 五常訓跑班·板橋</span>
+            </a>
           </div>
+          <p class="course-note">- 所有課程（含額滿班）皆可私訊官方 LINE 預約單堂體驗 -</p>
         </div>
       </div>
     </div>
@@ -86,8 +97,25 @@
       <div class="lib-panel" id="swim-courses">
         <div class="sched-panel-inner">
           <div class="course-info-cards" id="swimCourseCards">
-            <a href="event-page.html?slug=swim-camp" target="_blank" rel="noopener" class="course-info-card">新一期游泳班</a>
-            <a href="custom-course.html" target="_blank" rel="noopener" class="course-info-card">客製化課程</a>
+            <a href="event-page.html?slug=swim-camp" target="_blank" rel="noopener" class="course-info-card has-cover">
+              <span class="course-cover"><img src="assets/courses/swim-camp.jpg" alt="新一期游泳班" loading="lazy"><span class="course-badge course-badge-open">報名中</span></span>
+              <span class="course-title">新一期游泳班</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lib-item">
+      <button class="lib-link" type="button" data-toggle="custom-courses">
+        <span class="txt"><span class="t1">客製化課程</span></span>
+        <span class="arrow">⌄</span>
+      </button>
+      <div class="lib-panel" id="custom-courses">
+        <div class="sched-panel-inner">
+          <div class="course-info-cards" id="customCourseCards">
+            <a href="event-page.html?slug=customize-running-camp" target="_blank" rel="noopener" class="course-info-card">專業跑步課程</a>
+            <a href="custom-course.html" target="_blank" rel="noopener" class="course-info-card">游泳課程</a>
           </div>
         </div>
       </div>
@@ -318,7 +346,7 @@
 
   async function load(name) {
     var snap = await getDocs(collection(db, name));
-    return snap.docs.map(function (d) { return d.data(); });
+    return snap.docs.map(function (d) { var x = d.data(); x.id = d.id; return x; });
   }
 
   try {
@@ -365,11 +393,21 @@
       return !/^[a-z][a-z0-9+.-]*:/i.test(u) && !/\s/.test(u);
     };
     var cards = await load('course_cards');
+    // 後台「隱藏這個下拉選單」的設定：存在 course_cards 裡 group 為 _menu 的文件
+    cards.filter(function (x) { return x.group === '_menu'; }).forEach(function (m) {
+      Object.keys(m.hidden || {}).forEach(function (id) {
+        if (!m.hidden[id]) return;
+        var item = { running: 'running-courses', custom: 'custom-courses', swim: 'swim-courses', monthly: 'monthly-events', team: 'team-schedule' }[id];
+        var btn = item && document.querySelector('[data-toggle="' + item + '"]');
+        if (btn) btn.closest('.lib-item').style.display = 'none';
+      });
+    });
+    cards = cards.filter(function (x) { return x.group !== '_menu'; });
     if (cards.length) {
-      [['running', 'runningCourseCards'], ['swim', 'swimCourseCards']].forEach(function (pair) {
+      [['running', 'runningCourseCards'], ['custom', 'customCourseCards'], ['swim', 'swimCourseCards']].forEach(function (pair) {
         var box = document.getElementById(pair[1]);
         var list = cards
-          .filter(function (x) { return x.group === pair[0] && x.label && safeUrl(x.url); })
+          .filter(function (x) { return x.group === pair[0] && x.label && (safeUrl(x.url) || x.pageOn); })
           .sort(function (a, b) { return (a.order || 0) - (b.order || 0); });
         box.innerHTML = '';
         if (!list.length) {
@@ -381,11 +419,34 @@
         }
         list.forEach(function (c) {
           var a = document.createElement('a');
-          a.href = c.url.trim();
+          // 有開啟內頁的卡片開到站內的課程內頁；否則直接開報名連結
+          a.href = c.pageOn ? 'course-detail.html?id=' + encodeURIComponent(c.id) : c.url.trim();
           a.target = '_blank';
           a.rel = 'noopener';
           a.className = 'course-info-card';
-          a.textContent = c.label;
+          var imgOk = c.image && (safeUrl(c.image) || /^data:image\/(jpeg|png|webp);base64,/i.test(c.image));
+          if (imgOk) {
+            a.classList.add('has-cover');
+            var wrap = document.createElement('span');
+            wrap.className = 'course-cover';
+            var im = document.createElement('img');
+            im.src = c.image.trim();
+            im.alt = c.label;
+            im.loading = 'lazy';
+            im.addEventListener('load', function () { refreshPanelHeight(a.closest('.lib-panel')); });
+            wrap.appendChild(im);
+            if (c.status === 'open' || c.status === 'full' || c.status === 'closed') {
+              var b = document.createElement('span');
+              b.className = 'course-badge course-badge-' + c.status;
+              b.textContent = ({ open: '報名中', full: '已額滿', closed: '未開放' })[c.status];
+              wrap.appendChild(b);
+            }
+            a.appendChild(wrap);
+          }
+          var t = document.createElement('span');
+          t.className = 'course-title';
+          t.textContent = c.label;
+          a.appendChild(t);
           box.appendChild(a);
         });
       });
@@ -394,5 +455,6 @@
   } catch (e) { console.warn('course_cards 讀取失敗，使用內建內容', e); }
 </script>
 
+<script src="js/line-chat.js"></script>
 </body>
 </html>
