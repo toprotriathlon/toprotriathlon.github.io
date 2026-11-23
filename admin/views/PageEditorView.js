@@ -172,7 +172,7 @@ export default {
             <button class="admin-icon-btn" @click="moveBlock(i, -1)" :disabled="i === 0" title="上移">▲</button>
             <button class="admin-icon-btn" @click="moveBlock(i, 1)" :disabled="i === draft.blocks.length - 1" title="下移">▼</button>
             <button class="admin-icon-btn" @click="toggleBlock(block.id)" title="編輯">✎</button>
-            <button class="admin-icon-btn" @click="removeBlock(i)" title="刪除">🗑</button>
+            <button class="admin-icon-btn is-delete" aria-label="刪除" @click="removeBlock(i)" title="刪除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
           </div>
         </div>
         <div class="admin-block-body" v-show="openBlockId === block.id">

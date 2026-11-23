@@ -296,11 +296,22 @@ body{ background: #F3F4F6; }
 .admin-menu-name input{ flex: 1 1 200px; min-width: 0; padding: 8px 12px; border: 1px solid #D1D5DB; border-radius: 8px; font: inherit; font-weight: 700; }
 .admin-menu-name .btn{ padding: 6px 14px; font-size: 13px; }
 .admin-add-menu{ width: 100%; justify-content: center; margin-top: 4px; }
-.admin-restore{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-.admin-restore .btn{ padding: 6px 14px; font-size: 13px; }
 .admin-group-move{ display: inline-flex; gap: 6px; }
 .admin-icon-btn:disabled{ opacity: .35; cursor: not-allowed; }
 
 .admin-drag-handle{ cursor: grab; touch-action: none; user-select: none; font-size: 18px; line-height: 1; }
 .admin-slide-card.is-dragging{ opacity: .85; box-shadow: 0 10px 28px rgba(0,0,0,.22); outline: 2px solid var(--navy); position: relative; z-index: 2; }
 body:has(.admin-slide-card.is-dragging){ user-select: none; cursor: grabbing; }
+
+/* ---- 桌機版：側邊欄固定在畫面左側、高度等於視窗 ----
+   右邊內容再長也只有內容在捲動，側邊欄底下的「登出」「設定」永遠看得到，不用滑到頁面最底。
+   選單項目太多、視窗又很矮時，只有中間的選單清單會自己捲動。 */
+@media (min-width: 861px){
+  .admin-sidebar{ position: sticky; top: 0; height: 100vh; align-self: flex-start; }
+  .admin-drawer{ min-height: 0; }
+  .admin-nav{ min-height: 0; overflow-y: auto; }
+}
+
+/* 刪除（垃圾桶）按鈕：紅色線條圖示，一眼看得出來；滑鼠移上去整顆變紅 */
+.admin-icon-btn.is-delete{ color: #DC2626; border-color: #FCA5A5; }
+.admin-icon-btn.is-delete:hover:not(:disabled){ background: #DC2626; border-color: #DC2626; color: #fff; }

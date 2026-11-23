@@ -43,7 +43,7 @@ export default {
   components: { MenuVisibilityToggle },
   props: { db: { type: Object, required: true } },
   data() {
-    return { GROUPS, items: [], menus: [], names: {}, deleted: [], order: [], removed: [], loading: true, saving: false, seeded: false, msg: "", err: "", dirty: false };
+    return { items: [], menus: [], names: {}, deleted: [], order: [], removed: [], loading: true, saving: false, seeded: false, msg: "", err: "", dirty: false };
   },
   computed: {
     // 內建的三個 + 後台自己新增的
@@ -123,16 +123,12 @@ export default {
     },
     removeBuiltin(g) {
       const n = this.inGroup(g.id).length;
-      if (!confirm(`確定要刪除下拉選單「${g.label}」嗎？${n ? `裡面的 ${n} 張卡片也會一起刪除。` : ""}（按下「儲存變更」後才會真的刪除，之後可以在最下方還原空的選單）`)) return;
+      if (!confirm(`確定要刪除下拉選單「${g.label}」嗎？${n ? `裡面的 ${n} 張卡片也會一起刪除。` : ""}（按下「儲存變更」後才會真的刪除，刪除後無法還原）`)) return;
       this.inGroup(g.id).forEach((it) => {
         if (it.id) this.removed.push(it.id);
       });
       this.items = this.items.filter((x) => x.group !== g.id);
       this.deleted.push(g.id);
-      this.dirty = true;
-    },
-    restoreBuiltin(id) {
-      this.deleted = this.deleted.filter((x) => x !== id);
       this.dirty = true;
     },
     addMenu() {
@@ -308,16 +304,12 @@ export default {
             <div class="admin-slide-actions">
               <button class="admin-icon-btn" @click="move(it, -1)" title="上移">▲</button>
               <button class="admin-icon-btn" @click="move(it, 1)" title="下移">▼</button>
-              <button class="admin-icon-btn" @click="remove(it)" title="刪除">🗑</button>
+              <button class="admin-icon-btn is-delete" aria-label="刪除" @click="remove(it)" title="刪除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
             </div>
           </div>
           <button class="btn btn-outline" @click="add(g.id)">+ 新增卡片</button>
         </div>
         <button class="btn btn-outline admin-add-menu" @click="addMenu">+ 新增下拉選單</button>
-        <div class="admin-restore" v-if="deleted.length">
-          <span class="sub">已刪除的下拉選單：</span>
-          <button type="button" class="btn btn-outline" v-for="g in GROUPS.filter((x) => deleted.includes(x.id))" :key="g.id" @click="restoreBuiltin(g.id)">還原「{{ g.label }}」</button>
-        </div>
       </template>
     </div>
   `,

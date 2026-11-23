@@ -130,7 +130,7 @@ export default {
         <div v-if="loading">載入中…</div>
         <div class="admin-admin-row" v-for="a in admins" :key="a.uid">
           <span>{{ a.email }} <span class="admin-badge" v-if="a.uid === user.uid">你</span></span>
-          <button class="admin-icon-btn" @click="removeAdmin(a)" :disabled="a.uid === user.uid || admins.length <= 1" title="移除後台權限">🗑</button>
+          <button class="admin-icon-btn is-delete" aria-label="刪除" @click="removeAdmin(a)" :disabled="a.uid === user.uid || admins.length <= 1" title="移除後台權限"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
         </div>
       </div>
     </div>
