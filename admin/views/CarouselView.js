@@ -45,7 +45,7 @@ async function toDataUrl(blob) {
 export default {
   props: { db: { type: Object, required: true } },
   data() {
-    return { slides: [], removed: [], loading: true, saving: false, working: false, seeded: false, msg: "", err: "", dirty: false, MAX_SLIDES };
+    return { slides: [], removed: [], loading: true, saving: false, working: false, seeded: false, msg: "", err: "", dirty: false, dragKey: null, MAX_SLIDES };
   },
   async mounted() {
     await this.load();
@@ -112,6 +112,49 @@ export default {
       }
       return out;
     },
+    // 拖曳排序：按住左邊的把手，上下拖到想放的位置。用 pointer 事件，滑鼠和手機觸控都能用
+    startDrag(key, e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      e.preventDefault();
+      this.dragKey = key;
+      window.addEventListener("pointermove", this.onDragMove);
+      window.addEventListener("pointerup", this.endDrag);
+      window.addEventListener("pointercancel", this.endDrag);
+    },
+    onDragMove(e) {
+      if (this.dragKey == null) return;
+      const from = this.slides.findIndex((s) => s.key === this.dragKey);
+      if (from < 0) return;
+      const cards = Array.from(this.$el.querySelectorAll(".admin-slide-card"));
+      // 放在「中線在游標上方的其他卡片」的後面
+      let to = 0;
+      cards.forEach((c, k) => {
+        if (k === from) return;
+        const r = c.getBoundingClientRect();
+        if (e.clientY > r.top + r.height / 2) to += 1;
+      });
+      if (to !== from) {
+        const [item] = this.slides.splice(from, 1);
+        this.slides.splice(to, 0, item);
+        this.dirty = true;
+      }
+      // 靠近螢幕上下緣時自動捲動，長清單也拖得到
+      const edge = 70;
+      if (e.clientY < edge) window.scrollBy(0, -14);
+      else if (e.clientY > window.innerHeight - edge) window.scrollBy(0, 14);
+    },
+    endDrag() {
+      this.dragKey = null;
+      window.removeEventListener("pointermove", this.onDragMove);
+      window.removeEventListener("pointerup", this.endDrag);
+      window.removeEventListener("pointercancel", this.endDrag);
+    },
+    move(i, dir) {
+      const j = i + dir;
+      if (j < 0 || j >= this.slides.length) return;
+      [this.slides[i], this.slides[j]] = [this.slides[j], this.slides[i]];
+      this.dirty = true;
+    },
     remove(i) {
       if (!confirm("確定要刪除這張照片嗎？（按下「儲存變更」後才會真的刪除）")) return;
       const s = this.slides[i];
@@ -144,7 +187,7 @@ export default {
       <div class="admin-editor-head">
         <div>
           <h2>輪播圖</h2>
-          <p class="sub">顯示在 linkinbio 頁面最上方，依上傳順序每 4 秒自動切換。上傳照片後會跳出裁切視窗，可自己拖曳、縮放選擇要保留的範圍（固定橫向 5:3，跟前台一致）。</p>
+          <p class="sub">顯示在 linkinbio 頁面最上方，依下方排列的順序每 4 秒自動切換，按住 ⠿ 拖曳（或用 ▲ ▼）調整順序。上傳照片後會跳出裁切視窗，可自己拖曳、縮放選擇要保留的範圍（固定橫向 5:3，跟前台一致）。</p>
         </div>
         <div class="admin-toolbar">
           <label class="btn btn-outline" :class="{ 'is-disabled': working || slides.length >= MAX_SLIDES }" style="cursor:pointer;">
@@ -163,12 +206,15 @@ export default {
 
       <div v-if="loading">載入中…</div>
       <template v-else>
-        <div class="admin-slide-card" v-for="(s, i) in slides" :key="s.key">
+        <div class="admin-slide-card" :class="{ 'is-dragging': dragKey === s.key }" v-for="(s, i) in slides" :key="s.key">
           <div class="admin-slide-thumb">
             <img :src="s.image" alt="" />
           </div>
           <div class="admin-slide-fields"><p class="sub">第 {{ i + 1 }} 張</p></div>
           <div class="admin-slide-actions">
+            <button type="button" class="admin-icon-btn admin-drag-handle" @pointerdown="startDrag(s.key, $event)" title="按住拖曳調整順序" aria-label="按住拖曳調整順序">⠿</button>
+            <button class="admin-icon-btn" @click="move(i, -1)" :disabled="i === 0" title="往前移">▲</button>
+            <button class="admin-icon-btn" @click="move(i, 1)" :disabled="i === slides.length - 1" title="往後移">▼</button>
             <button class="admin-icon-btn" @click="remove(i)" title="刪除">🗑</button>
           </div>
         </div>

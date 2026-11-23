@@ -8,7 +8,19 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/linkinbio.css?v=24">
+<link rel="stylesheet" href="css/linkinbio.css?v=25">
+<style>
+  /* 下拉選單與輪播的內容要等資料庫回來才是最終樣子（順序、名稱、隱藏、卡片…）。
+     只藏一部分的話，頭像、標題會先出現、其他區塊稍後才冒出來，看起來像閃動；
+     所以整個內容卡片一起先藏起來，資料、第一張輪播圖與字型都就緒後再整頁一起淡入 */
+  .lib-card{ transition: opacity .3s ease; }
+  html.lib-loading .lib-card{ opacity: 0; }
+</style>
+<script>
+  document.documentElement.classList.add('lib-loading');
+  // 保險：資料庫太慢或連不上時，3 秒後還是照原本內容顯示，不會一直空白
+  setTimeout(function () { document.documentElement.classList.remove('lib-loading'); }, 3500);
+</script>
 <script>
   // 在頁面還沒畫出來之前，先用上次記住的結果把「已隱藏／已刪除」的下拉選單藏起來，避免重新整理時先閃一下。
   // 資料庫的最新結果回來後，由下方的 module script 校正並移除這段樣式。
@@ -364,10 +376,62 @@
   import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
   import { db } from "./js/firebase-config.js";
 
-  async function load(name) {
-    var snap = await getDocs(collection(db, name));
-    return snap.docs.map(function (d) { var x = d.data(); x.id = d.id; return x; });
+  // 資料讀取策略：「先用上次記在瀏覽器（IndexedDB）的資料立刻畫出來，背景再去資料庫抓最新的」。
+  // 抓回來的跟記住的不一樣（例如剛在後台改過），就更新記憶並重新整理一次頁面，這次起就是最新內容。
+  // 同一台裝置第一次造訪沒有記憶，就跟以前一樣等資料庫回應。
+  function openCache() {
+    return new Promise(function (res, rej) {
+      var r = indexedDB.open('libCache', 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore('kv'); };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
   }
+  function cacheGet(name) {
+    return openCache().then(function (d) {
+      return new Promise(function (res) {
+        var q = d.transaction('kv').objectStore('kv').get(name);
+        q.onsuccess = function () { res(q.result || null); };
+        q.onerror = function () { res(null); };
+      });
+    }).catch(function () { return null; });
+  }
+  function cacheSet(name, data) {
+    return openCache().then(function (d) {
+      return new Promise(function (res) {
+        var t = d.transaction('kv', 'readwrite');
+        t.objectStore('kv').put(data, name);
+        t.oncomplete = t.onerror = function () { res(); };
+      });
+    }).catch(function () {});
+  }
+  async function fetchAll(name) {
+    var snap = await getDocs(collection(db, name));
+    return snap.docs.map(function (d) {
+      var x = d.data();
+      x.id = d.id;
+      delete x.updatedAt; delete x.createdAt;   // 時間戳記不需要，也避免快取比對時被誤判成不同
+      return x;
+    });
+  }
+  var prefetched = {};
+  var freshJobs = [];
+  var dataChanged = false;
+  function load(name) {
+    if (!prefetched[name]) {
+      prefetched[name] = (async function () {
+        var cached = await cacheGet(name);
+        var fresh = fetchAll(name);
+        freshJobs.push(fresh.then(function (d) {
+          if (cached && JSON.stringify(cached) !== JSON.stringify(d)) dataChanged = true;
+          return cacheSet(name, d);
+        }).catch(function () {}));
+        return cached || fresh;
+      })();
+    }
+    return prefetched[name];
+  }
+  ['schedule_items', 'carousel_slides', 'course_cards'].forEach(load);
 
   try {
     var items = await load('schedule_items');
@@ -518,6 +582,29 @@
       document.querySelectorAll('.lib-item.is-open .lib-panel').forEach(refreshPanelHeight);
     }
   } catch (e) { console.warn('course_cards 讀取失敗，使用內建內容', e); }
+
+  // 資料校正完成後，再等第一張輪播圖與字型就緒（各最多等 1.5 秒、0.8 秒），整頁一起淡入
+  var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+  try {
+    var firstImg = document.querySelector('.lib-slide img');
+    if (firstImg && !firstImg.complete) {
+      await Promise.race([new Promise(function (r) { firstImg.addEventListener('load', r); firstImg.addEventListener('error', r); }), wait(1500)]);
+    }
+    if (document.fonts && document.fonts.ready) await Promise.race([document.fonts.ready, wait(800)]);
+  } catch (e) {}
+  document.documentElement.classList.remove('lib-loading');
+
+  // 背景抓回來的資料跟剛才畫的不一樣（後台剛改過）：重新整理一次，套用最新內容。15 秒內只重整一次，避免迴圈
+  await Promise.all(freshJobs);
+  if (dataChanged) {
+    try {
+      var last = +sessionStorage.getItem('lib_cache_reload') || 0;
+      if (Date.now() - last > 15000) {
+        sessionStorage.setItem('lib_cache_reload', String(Date.now()));
+        location.reload();
+      }
+    } catch (e) {}
+  }
 </script>
 
 <script src="js/line-chat.js"></script>

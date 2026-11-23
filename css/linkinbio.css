@@ -537,13 +537,14 @@
 .event-card{ max-width: 460px; }
 .event-back{
   display: inline-flex;
-  color: var(--slate);
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.45); /* 背景圖有亮有暗，加一點陰影讓白字都讀得到 */
   font-size: 13px;
   font-family: var(--font-eyebrow);
   letter-spacing: 0.04em;
   margin-bottom: 22px;
 }
-.event-back:hover{ color: var(--navy); }
+.event-back:hover{ color: var(--coral); }
 .event-eyebrow{
   font-family: var(--font-eyebrow); font-weight: 700; font-size: 12px; letter-spacing: 0.12em;
   color: var(--coral-dark); text-transform: uppercase; margin-bottom: 8px;
