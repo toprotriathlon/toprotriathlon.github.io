@@ -257,7 +257,6 @@
   ];
 
   var weekdayNames = ['日', '一', '二', '三', '四', '五', '六'];
-  var monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
   function escHtml(v) {
     return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -295,7 +294,7 @@
       li.innerHTML =
         '<a class="sched-card-item" href="' + escHtml(detailHref) + '" target="_blank" rel="noopener" aria-label="查看「' + escHtml(item.title) + '」詳情頁">' +
           '<span class="sched-card-date-block">' +
-            '<span class="sched-card-month">' + monthNames[d.getMonth()] + '</span>' +
+            '<span class="sched-card-month">' + (d.getMonth() + 1) + '月</span>' +
             '<span class="sched-card-day">' + day + '</span>' +
             '<span class="sched-card-weekday">週' + weekday + '</span>' +
           '</span>' +
