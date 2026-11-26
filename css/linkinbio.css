@@ -186,6 +186,14 @@
   display: flex; flex-direction: column; align-items: center;
   flex-shrink: 0; width: 46px;
 }
+.sched-card-month{
+  font-family: var(--font-eyebrow);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--slate);
+  margin-bottom: 3px;
+}
 .sched-card-day{
   font-family: var(--font-num);
   font-weight: 800;
