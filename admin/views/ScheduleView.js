@@ -28,8 +28,11 @@ function validOptionalUrl(u) {
   return !v || /^https?:\/\/\S+$/i.test(v);
 }
 
+// 先依日期；同一天的話，有手動排序（order）就照 order，沒有就照時間
 function byDateTime(a, b) {
-  return (a.date + " " + a.time).localeCompare(b.date + " " + b.time);
+  if (a.date !== b.date) return a.date.localeCompare(b.date);
+  if (typeof a.order === "number" && typeof b.order === "number" && a.order !== b.order) return a.order - b.order;
+  return a.time.localeCompare(b.time);
 }
 
 export default {
@@ -57,7 +60,7 @@ export default {
         this.items = snap.docs
           .map((d) => {
             const x = d.data();
-            return { id: d.id, key: d.id, date: x.date || "", time: x.time || "", title: x.title || "", desc: x.desc || "", url: x.url || "" };
+            return { id: d.id, key: d.id, date: x.date || "", time: x.time || "", title: x.title || "", desc: x.desc || "", url: x.url || "", order: typeof x.order === "number" ? x.order : null };
           })
           .sort(byDateTime);
         this.removed = [];
@@ -84,8 +87,20 @@ export default {
       this.items.splice(i, 1);
       this.dirty = true;
     },
+    // 改日期後重新排：只依日期排，同一天內維持目前手動排好的先後
     sortNow() {
-      this.items.sort(byDateTime);
+      this.items.sort((a, b) => a.date.localeCompare(b.date));
+    },
+    // 同一天內上移／下移（只跟同一天的相鄰項目交換）
+    canMove(i, dir) {
+      const j = i + dir;
+      return j >= 0 && j < this.items.length && this.items[j].date === this.items[i].date;
+    },
+    move(i, dir) {
+      if (!this.canMove(i, dir)) return;
+      const arr = this.items;
+      [arr[i], arr[i + dir]] = [arr[i + dir], arr[i]];
+      this.dirty = true;
     },
     async save() {
       this.msg = "";
@@ -103,7 +118,7 @@ export default {
       this.saving = true;
       try {
         const batch = writeBatch(this.db);
-        for (const it of this.items) {
+        for (const [idx, it] of this.items.entries()) {
           const ref = it.id ? doc(this.db, "schedule_items", it.id) : doc(collection(this.db, "schedule_items"));
           batch.set(ref, {
             group: this.group,
@@ -112,6 +127,7 @@ export default {
             title: it.title.trim(),
             desc: (it.desc || "").trim(),
             url: (it.url || "").trim(),
+            order: idx,
             updatedAt: serverTimestamp(),
           });
         }
@@ -130,7 +146,7 @@ export default {
       <div class="admin-editor-head">
         <div>
           <h2>{{ title }}</h2>
-          <p class="sub">顯示在 linkinbio 頁面的「{{ title }}」下拉選單，依日期排序。</p>
+          <p class="sub">顯示在 linkinbio 頁面的「{{ title }}」下拉選單，依日期排序，同一天的活動可用 ↑↓ 調整先後。</p>
           <menu-visibility-toggle :db="db" :menu-id="group" />
         </div>
         <div class="admin-toolbar">
@@ -162,6 +178,10 @@ export default {
           <div class="form-row admin-sched-desc">
             <label>地點／備註</label>
             <input type="text" v-model="it.desc" @input="dirty = true" placeholder="例如：桃園三民運動公園" />
+          </div>
+          <div class="admin-sched-move">
+            <button class="admin-icon-btn" aria-label="上移" title="同一天內上移" :disabled="!canMove(i, -1)" @click="move(i, -1)">↑</button>
+            <button class="admin-icon-btn" aria-label="下移" title="同一天內下移" :disabled="!canMove(i, 1)" @click="move(i, 1)">↓</button>
           </div>
           <button class="admin-icon-btn is-delete" aria-label="刪除" @click="remove(i)" title="刪除"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
           <div class="form-row admin-sched-url">

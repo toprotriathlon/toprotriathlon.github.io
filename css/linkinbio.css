@@ -184,21 +184,14 @@
 .sched-card-item:focus-visible{ background: #F4F0FC; }
 .sched-card-date-block{
   display: flex; flex-direction: column; align-items: center;
-  flex-shrink: 0; width: 46px;
-}
-.sched-card-month{
-  font-family: var(--font-eyebrow);
-  font-weight: 600;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  color: var(--slate);
-  margin-bottom: 3px;
+  flex-shrink: 0; width: 50px;
 }
 .sched-card-day{
   font-family: var(--font-num);
   font-weight: 800;
-  font-size: 28px;
+  font-size: 17px;
   line-height: 1;
+  white-space: nowrap;
   color: var(--navy);
 }
 .sched-card-weekday{
@@ -224,7 +217,7 @@
 }
 .sched-card-time{
   font-family: var(--font-eyebrow); font-weight: 700; font-size: 13px;
-  letter-spacing: 0.04em; color: var(--coral-dark);
+  letter-spacing: 0.04em; color: var(--coral-dark); margin-top: 4px;
 }
 .sched-card-arrow{
   width: 26px; height: 26px; border-radius: 50%;

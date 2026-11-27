@@ -145,12 +145,14 @@ body{ background: #F3F4F6; }
 
 /* ---- 行事曆／輪播圖編輯畫面 ---- */
 .admin-sched-row{
-  display: grid; grid-template-columns: 150px 110px minmax(0, 1.4fr) minmax(0, 1fr) auto;
+  display: grid; grid-template-columns: 150px 110px minmax(0, 1.4fr) minmax(0, 1fr) auto auto;
   gap: 12px; align-items: end;
   background: #fff; border: 1px solid #E5E7EB; border-radius: 10px;
   padding: 12px 14px; margin-bottom: 10px;
 }
 .admin-sched-row .form-row{ margin-bottom: 0; }
+.admin-sched-move{ display: flex; gap: 4px; }
+.admin-sched-move .admin-icon-btn:disabled{ opacity: .3; cursor: default; }
 @media (max-width: 900px){
   .admin-sched-row{ grid-template-columns: 1fr 1fr; }
   .admin-sched-title, .admin-sched-desc{ grid-column: 1 / -1; }

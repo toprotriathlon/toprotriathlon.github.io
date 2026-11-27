@@ -8,7 +8,7 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/linkinbio.css?v=25">
+<link rel="stylesheet" href="css/linkinbio.css?v=26">
 <style>
   /* 下拉選單與輪播的內容要等資料庫回來才是最終樣子（順序、名稱、隱藏、卡片…）。
      只藏一部分的話，頭像、標題會先出現、其他區塊稍後才冒出來，看起來像閃動；
@@ -294,9 +294,9 @@
       li.innerHTML =
         '<a class="sched-card-item" href="' + escHtml(detailHref) + '" target="_blank" rel="noopener" aria-label="查看「' + escHtml(item.title) + '」詳情頁">' +
           '<span class="sched-card-date-block">' +
-            '<span class="sched-card-month">' + (d.getMonth() + 1) + '月</span>' +
-            '<span class="sched-card-day">' + day + '</span>' +
+            '<span class="sched-card-day">' + (d.getMonth() + 1) + '/' + day + '</span>' +
             '<span class="sched-card-weekday">週' + weekday + '</span>' +
+            (item.time ? '<span class="sched-card-time">' + escHtml(item.time) + '</span>' : '') +
           '</span>' +
           '<span class="sched-card-main">' +
             '<span class="sched-card-left">' +
@@ -304,7 +304,6 @@
               '<span class="sched-card-location">' + escHtml(item.desc) + '</span>' +
             '</span>' +
             '<span class="sched-card-right">' +
-              '<span class="sched-card-time">' + escHtml(item.time) + '</span>' +
               '<span class="sched-card-arrow" aria-hidden="true">↗</span>' +
             '</span>' +
           '</span>' +
@@ -440,7 +439,11 @@
       [['team', 'teamScheduleList'], ['monthly', 'monthlyEventList']].forEach(function (pair) {
         var list = items
           .filter(function (x) { return x.group === pair[0] && x.date && x.title; })
-          .sort(function (a, b) { return (a.date + ' ' + (a.time || '')).localeCompare(b.date + ' ' + (b.time || '')); });
+          .sort(function (a, b) {
+            if (a.date !== b.date) return a.date.localeCompare(b.date);
+            if (typeof a.order === 'number' && typeof b.order === 'number' && a.order !== b.order) return a.order - b.order;
+            return (a.time || '').localeCompare(b.time || '');
+          });
         renderCardScheduleList(document.getElementById(pair[1]), list, pair[0]);
       });
       document.querySelectorAll('.lib-item.is-open .lib-panel').forEach(refreshPanelHeight);
